@@ -5,22 +5,22 @@
 #include <cstdlib>
 
 class SequenceStrategy {
-public:
-    float nextDuration();
-    float nextInteronset();
+    public:
+        float nextDuration();
+        float nextInteronset();
 };
 
 class Scheduler {
-private:
-    float minInteronset;
-    float maxInteronset;
+    private:
+        float minInteronset;
+        float maxInteronset;
 
-public:
-    SequenceStrategy(float minIO, float maxIO);
+    public:
+        Scheduler(float minIO, float maxIO);
 
-    float frandom();
-    float nextDuration();
-    float nextInteronset();
+        float frandom();
+        float nextDuration();
+        float nextInteronset();
 };
 
 #endif // SEQUENCE_STRATEGY_H
