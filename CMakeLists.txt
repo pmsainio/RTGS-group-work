@@ -205,3 +205,21 @@ add_plugin(synth
         ${dsp_source}
         ${synth})
 
+
+set(granSynth ${CMAKE_CURRENT_SOURCE_DIR}/projects/GranularSynth)
+
+add_plugin(granSynth
+    VERSION 0.1.0
+    PLUGIN_NAME "Granular Synth"
+    PROD_NAME GranSynth
+    PROD_CODE GSYN
+    SYNTH TRUE
+    SOURCES
+        ${granSynth}/PluginEditor.cpp
+        ${granSynth}/PluginProcessor.cpp
+        ${granSynth}/Scheduler.cpp
+        ${granSynth}/SequenceStrategy.cpp
+        ${granSynth}/GranularSynth.cpp
+    INCLUDE_DIRS
+        ${gui_source}
+        ${granSynth})
