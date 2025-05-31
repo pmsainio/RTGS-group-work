@@ -166,45 +166,6 @@ add_plugin(envgen
         ${dsp_source}
         ${envgen_source})
 
-# state variable filter project
-set(svf_source ${CMAKE_CURRENT_SOURCE_DIR}/projects/StateVariableFilter)
-
-add_plugin(svf
-    VERSION 0.1.0
-    PLUGIN_NAME "State Variable Filter"
-    PROD_NAME StateVariableFilter
-    PROD_CODE Svff
-    SYNTH FALSE
-    SOURCES
-        ${svf_source}/PluginEditor.cpp
-        ${svf_source}/PluginProcessor.cpp
-        ${dsp_source}/StateVariableFilter.cpp
-        ${dsp_source}/Oscillator.cpp
-    INCLUDE_DIRS
-        ${dsp_source}
-        ${svf_source})
-
-# mono synth project
-set(synth ${CMAKE_CURRENT_SOURCE_DIR}/projects/Synth)
-
-add_plugin(synth
-    VERSION 0.1.0
-    PLUGIN_NAME "Synth"
-    PROD_NAME Synth
-    PROD_CODE Syth
-    SYNTH TRUE
-    SOURCES
-        ${synth}/PluginEditor.cpp
-        ${synth}/PluginProcessor.cpp
-        ${dsp_source}/Synth.cpp
-        ${dsp_source}/Oscillator.cpp
-        ${dsp_source}/EnvelopeGenerator.cpp
-        ${dsp_source}/StateVariableFilter.cpp
-    INCLUDE_DIRS
-        ${gui_source}
-        ${dsp_source}
-        ${synth})
-
 
 set(granSynth ${CMAKE_CURRENT_SOURCE_DIR}/projects/GranularSynth)
 
@@ -215,11 +176,9 @@ add_plugin(granSynth
     PROD_CODE GSYN
     SYNTH TRUE
     SOURCES
-        ${granSynth}/PluginEditor.cpp
         ${granSynth}/PluginProcessor.cpp
-        ${granSynth}/Scheduler.cpp
-        ${granSynth}/SequenceStrategy.cpp
-        ${granSynth}/GranularSynth.cpp
+        ${dsp_source}/SequenceScheduler.cpp
+        ${dsp_source}/Granulator.cpp
     INCLUDE_DIRS
         ${gui_source}
         ${granSynth})

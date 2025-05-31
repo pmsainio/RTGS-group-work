@@ -16,7 +16,7 @@ class Scheduler {
         float maxInteronset;
 
     public:
-        Scheduler(float minIO, float maxIO);
+        SequenceStrategy(float minIO, float maxIO);
 
         float frandom();
         float nextDuration();
