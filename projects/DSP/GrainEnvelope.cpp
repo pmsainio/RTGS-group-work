@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include "GrainEnvelope.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 
