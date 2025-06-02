@@ -1,5 +1,6 @@
 #pragma once 
 
+#include <juce_core/juce_core.h>
 #include "PluginProcessor.h"
 #include "juce_audio_processors/juce_audio_processors.h"
 #include "mrta_utils/Source/GUI/GenericParameterEditor.h"
@@ -7,7 +8,7 @@
 class GrainAudioProcessorEditor : public juce::AudioProcessorEditor
 {
     public: 
-        GrainAudioProcessorEditor(MidiHandlerAudioProcessor&);
+        GrainAudioProcessorEditor(GrainAudioProcessor&);
         ~GrainAudioProcessorEditor();
 
         void paint(juce::Graphics&) override;
