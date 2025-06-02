@@ -13,10 +13,11 @@ void Grain::setGrainASR(float attackTimeMs, float sustainTimeMs, float releaseTi
     envelope.setAttackTime(attackTimeMs);
     envelope.setSustainTime(sustainTimeMs);
     envelope.setReleaseTime(releaseTimeMs);
-
 }
 
-void Grain::process()
+void Grain::process(float* output, unsigned int numSamples, unsigned int start, unsigned int end)
 {
-    envelope.process();
+    envelope.process(output, numSamples);
+    start = start;
+    end = end;
 }
