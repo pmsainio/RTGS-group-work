@@ -91,7 +91,7 @@ namespace DSP
             case ATTACK:
                 if (attackSamplesCounter < attackTimeSamples)
                 {
-                    currentEnvelope = (1.f+std::cos(M_PI+(M_PI*(attackSamplesCounter/attackTimeSamples)*(grainAmplitude/2.f)))); // 1.f to 0.5f?
+                    currentEnvelope = (1.f + std::cos(M_PI + (M_PI * (attackSamplesCounter/attackTimeSamples)))) * (grainAmplitude/2.f);
                     currentEnvelope = std::fmin(currentEnvelope, 1.f);
                     ++attackSamplesCounter;
                 }
@@ -118,7 +118,7 @@ namespace DSP
             case RELEASE:
                 if (releaseSamplesCounter < releaseTimeSamples)
                 {
-                    currentEnvelope = (1.f+std::cos(M_PI*(releaseSamplesCounter/releaseTimeSamples))*(grainAmplitude/2.f));
+                    currentEnvelope = (1.f + std::cos(M_PI * (releaseSamplesCounter/releaseTimeSamples)))*(grainAmplitude/2.f);
                     ++releaseSamplesCounter;
                 }
                 else
