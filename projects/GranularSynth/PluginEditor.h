@@ -7,7 +7,7 @@
 class GrainAudioProcessorEditor : public juce::AudioProcessorEditor
 {
     public: 
-        GrainAudioProcessorEditor(MidiHandlerAudioProcessor&);
+        GrainAudioProcessorEditor(GrainAudioProcessor&);
         ~GrainAudioProcessorEditor();
 
         void paint(juce::Graphics&) override;
@@ -16,6 +16,7 @@ class GrainAudioProcessorEditor : public juce::AudioProcessorEditor
         private: 
             GrainAudioProcessor& audioProcessor;
             mrta::GenericParameterEditor paramEditor;
+            juce::TextButton loadFileButton {"Load File"};
 
             JUCE_DECLARE_NON_COPYABLE(GrainAudioProcessorEditor);
 }
