@@ -14,7 +14,7 @@ namespace DSP
     {
     }
 
-    void GrainEnvelope::prepare(double newSampleRate)
+    void GrainEnvelope::prepare(double newSampleRate, unsigned int rndStartSamples)
     {
         sampleRate = newSampleRate;
         attackTimeSamples = std::rint(attackTimeMs*static_cast<float>(sampleRate*0.001));
@@ -24,6 +24,21 @@ namespace DSP
         attackSamplesCounter = 0;
         sustainSamplesCounter = 0;
         releaseSamplesCounter = 0;
+        if (rndStartSamples < attackTimeSamples)
+        {
+            state = ATTACK;
+            attackSamplesCounter = rndStartSamples;
+        }
+        else if (rndStartSamples < attackTimeSamples + sustainTimeSamples)
+        {
+            state = SUSTAIN;
+            sustainSamplesCounter = rndStartSamples;
+        }
+        else
+        {
+            state = RELEASE;
+            releaseSamplesCounter = rndStartSamples;
+        }
     }
 
     void GrainEnvelope::process(float* output, unsigned int numSamples)

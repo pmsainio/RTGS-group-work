@@ -14,7 +14,7 @@ public:
     const GrainEnvelope& operator=(const GrainEnvelope&) = delete;
     const GrainEnvelope& operator=(GrainEnvelope&&) = delete;
 
-    void prepare(double newSampleRate);
+    void prepare(double newSampleRate, unsigned int randomizedStart);
     void process(float* output, unsigned int numSamples);
     void start();
     void end();
