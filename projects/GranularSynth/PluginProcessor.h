@@ -1,7 +1,10 @@
 #pragma once 
 
 #include <JuceHeader.h>
+#include <memory>
+#include "../DSP/GrainEnvelope.h"
 #include "juce_audio_basics/juce_audio_basics.h"
+#include "juce_audio_formats/juce_audio_formats.h"
 #include "mrta_utils/Source/Parameter/ParameterManager.h"
 
 namespace Param 
@@ -23,14 +26,17 @@ namespace Param
     
 }
 
-class GrainAudioProcessor : public Juce::AudioProcessor
+class GrainAudioProcessor : public juce::AudioProcessor
 {
     public: 
         GrainAudioProcessor();
         ~GrainAudioProcessor();
 
-        void readFile(juce::AudioSampleBuffer& fileBuffer);
+        // File 
+        void readFile(juce::String path);
         
+
+
         void prepareToPlay(double sampleRate, int samplesPerBlock) override;
         void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
         void releaseResources() override;
@@ -56,7 +62,11 @@ class GrainAudioProcessor : public Juce::AudioProcessor
         //==============================================================================
 
     private: 
+        double sampleRate;
         mrta::ParameterManager paramManager;
+        DSP::GrainEnvelope env;
+        juce::AudioFormatManager formatManager;
+        juce::AudioBuffer<float> wavetable;
         
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MidiHandlerAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainAudioProcessor)
 };
