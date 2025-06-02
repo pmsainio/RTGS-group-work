@@ -42,8 +42,15 @@ void GrainAudioProcessor::readFile(juce::String path)
     {
         DBG("Failed to create reader for file");
     }
+}
 
+void GrainAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
+{
+    buffer.clear();
 
+    const int numSamples = buffer.getNumSamples();
+    auto* output = buffer.getWritePointer(0);
+    
 }
 
 void GrainAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
