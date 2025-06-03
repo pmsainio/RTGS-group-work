@@ -21,7 +21,7 @@ namespace DSP
             float nextDuration();
 
             // call whenever grain lengths are updated
-            std::vector<int> generateStartingPoints(float maxLength, int fileLength, double sampleRate);
+            std::vector<int> generateStartingPoints(float maxLength, int fileLength);
 
         private:
             float minLength;
