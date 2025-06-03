@@ -3,7 +3,7 @@
 
 namespace DSP {
 
-    SequenceScheduler::SequenceScheduler(float minLength, float maxLength, int fileLength) {}
+    SequenceScheduler::SequenceScheduler(float minLength, float maxLength, int fileLength, double sampleRate) {}
 
     float SequenceScheduler::frandom()
     {
@@ -12,7 +12,7 @@ namespace DSP {
 
     float SequenceScheduler::nextDuration()
     {
-        return static_cast<int>(minLength + frandom() * (maxLength - minLength));
+        return static_cast<int>((minLength + frandom() * (maxLength - minLength)) * sampleRate);
     }
 
 std::vector<int> SequenceScheduler::generateStartingPoints(float maxLength, int fileLength)

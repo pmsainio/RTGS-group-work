@@ -8,7 +8,7 @@ namespace DSP
     {
         public: 
             // CTOR & DTOR
-            SequenceScheduler(float minLength, float maxLength, int fileLength);
+            SequenceScheduler(float minLength, float maxLength, int fileLengthm, double sampleRate);
             ~SequenceScheduler();
 
             // Semantics
@@ -21,11 +21,12 @@ namespace DSP
             float nextDuration();
 
             // call whenever grain lengths are updated
-            std::vector<int> generateStartingPoints(float maxLength, int fileLength);
+            std::vector<int> generateStartingPoints(float maxLength, int fileLength, double sampleRate);
 
         private:
             float minLength;
             float maxLength;
             float fileLength;
+            double sampleRate;
     };
 } // namespace DSP
