@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "../DSP/GrainEnvelope.h"
+#include "../DSP/GrainSynthVoice.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_formats/juce_audio_formats.h"
 
@@ -87,6 +88,7 @@ class GrainAudioProcessor : public juce::AudioProcessor
         mrta::ParameterManager paramManager;
         DSP::GrainEnvelope env;
         juce::AudioFormatManager formatManager;
+        GrainSynthVoice synth;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainAudioProcessor)
 };

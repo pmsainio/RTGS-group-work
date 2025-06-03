@@ -113,7 +113,7 @@ void GrainAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::M
 
     const int numSamples = buffer.getNumSamples();
     auto* output = buffer.getWritePointer(0);
-    
+    synth.renderNextBlock(buffer, 0, numSamples);
 }
 
 bool GrainAudioProcessor::acceptsMidi() const
