@@ -1,13 +1,9 @@
 #include "SequenceScheduler.h"
+#include <cstdlib>
 
-namespace DSP
-{
-    SequenceScheduler::SequenceScheduler(float minIO, float maxIO, float density) 
-    {
-        minIO = 0;
-        maxIO = 100;
-        density = 1;
-    }
+namespace DSP {
+
+    SequenceScheduler::SequenceScheduler(float minLength, float maxLength, int fileLength) {}
 
     float SequenceScheduler::frandom()
     {
@@ -16,22 +12,26 @@ namespace DSP
 
     float SequenceScheduler::nextDuration()
     {
-        return minInteronset + frandom() * (maxInteronset - minInteronset);
+        return static_cast<int>(minLength + frandom() * (maxLength - minLength));
     }
 
-    float SequenceScheduler::nextInteronset()
+std::vector<int> SequenceScheduler::generateStartingPoints(float maxLength, int fileLength)
+{
+    std::vector<int> startingPoints;
+    float currentPosition = 0.0f;
+
+    while (currentPosition < fileLength)
     {
-        return minInteronset + frandom() * (maxInteronset - minInteronset);
+        float duration = nextDuration();
+        if (currentPosition + duration > fileLength)
+            break; // Prevent going out of bounds
+
+        startingPoints.push_back(currentPosition);
+        currentPosition += duration;
     }
 
-    void SequenceScheduler::activateGrain(float duration)
-    {
-        activeGrains.push_back(duration);
-    }
-
-    float SequenceScheduler::synthesizeActiveGrain()
-    {
-        return activeGrains.empty() ? 0.0f : activeGrains.back();
-    }
+    return startingPoints;
 
 }
+
+} // namespace DSP
