@@ -8,7 +8,7 @@ namespace DSP
     {
         public: 
             // CTOR & DTOR
-            SequenceScheduler(float minIO, float maxIO, float density);
+            SequenceScheduler(float minLength, float maxLength, int fileLength);
             ~SequenceScheduler();
 
             // Semantics
@@ -17,23 +17,15 @@ namespace DSP
             SequenceScheduler(const SequenceScheduler&) = delete;
             SequenceScheduler& operator=(const SequenceScheduler&) = delete;
 
-            // Sequence Strat Methods
-            void activateGrain(float duration);
-            float synthesizeActiveGrain();
-            
-            // Scheduler Methods
             float frandom();
-            void scheduleSynthesize(float* out, unsigned int len);
             float nextDuration();
-            float nextInteronset();
-        private: 
-            // Scheduler Params
-            std::vector<float> activeGrains;
-            int nextOnset;
 
-            // Sequence Strat Params
-            float minInteronset;
-            float maxInteronset;
-            float density;
+            // call whenever grain lengths are updated
+            std::vector<int> generateStartingPoints(float maxLength, int fileLength);
+
+        private:
+            float minLength;
+            float maxLength;
+            float fileLength;
     };
 } // namespace DSP
