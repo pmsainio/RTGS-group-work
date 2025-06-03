@@ -10,20 +10,20 @@ namespace DSP {
         return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
     }
 
-    float SequenceScheduler::nextDuration()
+    double SequenceScheduler::randomDuration(float minLength, float maxLength)
     {
-        return static_cast<int>((minLength + frandom() * (maxLength - minLength)) * sampleRate);
+        return (minLength + frandom() * (maxLength - minLength) * sampleRate);
     }
 
-std::vector<int> SequenceScheduler::generateStartingPoints(float maxLength, int fileLength)
+std::vector<int> SequenceScheduler::generateStartingPoints(float minLength, float maxLength, int fileLength)
 {
     std::vector<int> startingPoints;
     float currentPosition = 0.0f;
 
     while (currentPosition < fileLength)
     {
-        float duration = nextDuration();
-        if (currentPosition + duration > fileLength)
+        float duration = randomDuration(minLength, maxLength);
+        if (currentPosition + maxLength * sampleRate > fileLength)
             break; // Prevent going out of bounds
 
         startingPoints.push_back(currentPosition);
@@ -31,7 +31,19 @@ std::vector<int> SequenceScheduler::generateStartingPoints(float maxLength, int 
     }
 
     return startingPoints;
-
 }
+
+std::vector<float> SequenceScheduler::generateGrainLengths(float minLength, float maxLength)
+{
+  // generates 64 grain lengths
+    std::vector<float> grainLengths;
+    for (int i = 0; i < 64; ++i)
+    {
+        float length = randomDuration(minLength, maxLength);
+        grainLengths.push_back(length);
+    }
+    return grainLengths;
+}
+
 
 } // namespace DSP
