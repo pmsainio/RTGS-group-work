@@ -23,8 +23,8 @@ std::vector<int> SequenceScheduler::generateStartingPoints(float minLength, floa
     while (currentPosition < fileLength)
     {
         float duration = randomDuration(minLength, maxLength);
-        if (currentPosition + maxLength * sampleRate > fileLength)
-            break; // Prevent going out of bounds
+        if (currentPosition + maxLength * sampleRate * 4 > fileLength)
+            break; // Overflow protection. Constant 4 is for safety of repitched sounds (up 2 octaves).
 
         startingPoints.push_back(currentPosition);
         currentPosition += duration;
