@@ -10,17 +10,18 @@ namespace Param
 {
     namespace ID
     {
-
+        static const juce::String volume {"Volume"};
     }
 
     namespace Name
     {
-
+        static const juce::String volume {"Volume"};
     }
 
     namespace Ranges
     {
-
+        static constexpr float volumeMax { 1.f };
+        static constexpr float volumeMin { 0.f };
     }
     
 }
@@ -29,10 +30,13 @@ class GrainAudioProcessor : public juce::AudioProcessor
 {
     public: 
         GrainAudioProcessor();
-        ~GrainAudioProcessor();
+        ~GrainAudioProcessor() override;
 
         // File 
         void readFile(juce::String path);
+        void checkForRestoredPath();
+        juce::String restoredPath;
+        juce::String chosenPath;
 
         void prepareToPlay(double sampleRate, int samplesPerBlock) override;
         void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;

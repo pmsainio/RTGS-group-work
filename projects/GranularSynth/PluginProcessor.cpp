@@ -2,8 +2,27 @@
 #include "juce_audio_formats/juce_audio_formats.h"
 #include <JuceHeader.h>
 
+// Construct paramVector with correct types for ParameterInfo
+static const std::vector<mrta::ParameterInfo> paramVector = {
+    mrta::ParameterInfo{
+        Param::ID::volume,
+        Param::Name::volume,
+        Param::Ranges::volumeMin,
+        Param::Ranges::volumeMax,
+        0.5f
+    }
+};
+
+
 GrainAudioProcessor::GrainAudioProcessor()
+    : paramManager(*this, "GranularSynth", paramVector)
 {
+    paramManager.registerParameterCallback(Param::ID::volume,
+    [this] (float value, bool /*force*/)
+    {
+
+    });
+
 }
 
 GrainAudioProcessor::~GrainAudioProcessor()
@@ -44,13 +63,32 @@ void GrainAudioProcessor::readFile(juce::String path)
     }
 }
 
+void GrainAudioProcessor::checkForRestoredPath()
+{
+    juce::String path;
+    path = restoredPath; 
+    if (path.isNotEmpty())
+    {
+        DBG("Restored Path:" << path);
+        std::swap(chosenPath, path);
+        restoredPath = "";
+    }
+
+}
+
 void GrainAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
+    juce::ScopedNoDenormals noDenormals;
     buffer.clear();
 
     const int numSamples = buffer.getNumSamples();
     auto* output = buffer.getWritePointer(0);
     
+}
+
+bool GrainAudioProcessor::acceptsMidi() const
+{
+    return true;
 }
 
 void GrainAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
@@ -61,4 +99,26 @@ void GrainAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 void GrainAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
 
+}
+
+
+//==============================================================================
+const juce::String GrainAudioProcessor::getName() const { return JucePlugin_Name; }
+bool GrainAudioProcessor::producesMidi() const { return false; }
+bool GrainAudioProcessor::isMidiEffect() const { return false; }
+double GrainAudioProcessor::getTailLengthSeconds() const { return 0.0; }
+int GrainAudioProcessor::getNumPrograms() { return 1; }
+int GrainAudioProcessor::getCurrentProgram() { return 0; }
+void GrainAudioProcessor::setCurrentProgram(int) { }
+const juce::String GrainAudioProcessor::getProgramName(int) { return {}; }
+void GrainAudioProcessor::changeProgramName(int, const juce::String&) { }
+bool GrainAudioProcessor::hasEditor() const { return true; }
+juce::AudioProcessorEditor* GrainAudioProcessor::createEditor() { return new GrainAudioProcessorEditor(*this); }
+//==============================================================================
+
+//==============================================================================
+// This creates new instances of the plugin..
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
+    return new GrainAudioProcessor();
 }
