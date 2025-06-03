@@ -23,6 +23,36 @@ GrainAudioProcessor::GrainAudioProcessor()
         DBG(value);
     });
 
+    paramManager.registerParameterCallback(Param::ID::attack,
+    [this] (float value, bool /*force*/)
+    {
+        DBG(value);
+    });
+
+    paramManager.registerParameterCallback(Param::ID::release,
+    [this] (float value, bool /*force*/)
+    {
+        DBG(value);
+    });
+
+    paramManager.registerParameterCallback(Param::ID::sustain,
+    [this] (float value, bool /*force*/)
+    {
+        DBG(value);
+    });
+
+    paramManager.registerParameterCallback(Param::ID::filePos,
+    [this] (float value, bool /*force*/)
+    {
+        DBG(value);
+    });
+
+    paramManager.registerParameterCallback(Param::ID::grainLen,
+    [this] (float value, bool /*force*/)
+    {
+        DBG(value);
+    });
+
 }
 
 GrainAudioProcessor::~GrainAudioProcessor()
