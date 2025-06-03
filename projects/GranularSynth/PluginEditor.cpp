@@ -1,5 +1,6 @@
+#include <JuceHeader.h>
 #include "PluginEditor.h"
-#include "mrta_utils/Source/GUI/GenericParameterEditor.h"
+
 
 GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
     juce::AudioProcessorEditor(p), audioProcessor(p),

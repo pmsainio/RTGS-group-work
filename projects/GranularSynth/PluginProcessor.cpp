@@ -1,16 +1,11 @@
 #include "PluginProcessor.h"
+#include "PluginEditor.h"
 #include "juce_audio_formats/juce_audio_formats.h"
 #include <JuceHeader.h>
 
-// Construct paramVector with correct types for ParameterInfo
-static const std::vector<mrta::ParameterInfo> paramVector = {
-    mrta::ParameterInfo{
-        Param::ID::volume,
-        Param::Name::volume,
-        Param::Ranges::volumeMin,
-        Param::Ranges::volumeMax,
-        0.5f
-    }
+static const std::vector<mrta::ParameterInfo> paramVector = 
+{
+    { Param::ID::volume, Param::Name::volume, Param::Ranges::volumeMin, Param::Ranges::volumeMax, 0.5f }
 };
 
 

@@ -177,8 +177,8 @@ add_plugin(granSynth
     SYNTH TRUE
     SOURCES
         ${granSynth}/PluginProcessor.cpp
+        ${granSynth}/PluginEditor.cpp
         ${dsp_source}/SequenceScheduler.cpp
-        # ${dsp_source}/Granulator.cpp
         ${dsp_source}/GrainEnvelope.cpp
     INCLUDE_DIRS
         ${gui_source}

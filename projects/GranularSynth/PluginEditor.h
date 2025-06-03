@@ -1,8 +1,7 @@
 #pragma once 
 
-#include <juce_core/juce_core.h>
+#include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "juce_audio_processors/juce_audio_processors.h"
 #include "mrta_utils/Source/GUI/GenericParameterEditor.h"
 
 class GrainAudioProcessorEditor : public juce::AudioProcessorEditor
@@ -11,7 +10,7 @@ class GrainAudioProcessorEditor : public juce::AudioProcessorEditor
         GrainAudioProcessorEditor(GrainAudioProcessor&);
         ~GrainAudioProcessorEditor();
 
-        void paint(juce::Graphics&) override;
+        void paint(juce::Graphics& g) override;
         void resized() override;
 
         private: 
@@ -19,4 +18,4 @@ class GrainAudioProcessorEditor : public juce::AudioProcessorEditor
             mrta::GenericParameterEditor paramEditor;
 
             JUCE_DECLARE_NON_COPYABLE(GrainAudioProcessorEditor);
-}
+};
