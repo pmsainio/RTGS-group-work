@@ -7,7 +7,7 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
     paramEditor(audioProcessor.getParamManager())
 {
     addAndMakeVisible(paramEditor);
-    setSize(300, 300);
+    setSize(6 * 100, 6 * 100);
 }
 
 

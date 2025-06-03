@@ -5,7 +5,13 @@
 
 static const std::vector<mrta::ParameterInfo> paramVector 
 {
-    { Param::ID::volume, Param::Name::volume, "", 0.5f, Param::Ranges::volumeMin, Param::Ranges::volumeMax, 0.01f, 1.0f }
+    { Param::ID::volume, Param::Name::volume, "", 0.1f, Param::Ranges::volumeMin, Param::Ranges::volumeMax, 0.01f, 0.3f },
+    { Param::ID::attack, Param::Name::attack, "ms", 5.f, Param::Ranges::attackMin, Param::Ranges::attackMax, 0.1f, 1.0f },
+    { Param::ID::release, Param::Name::release, "ms", 5.f, Param::Ranges::relMin, Param::Ranges::relMax, 0.1f, 1.0f },
+    { Param::ID::sustain, Param::Name::sustain, "ms", 0.01f, Param::Ranges::susMin, Param::Ranges::susMax, 0.1f, 1.0f },
+    { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, Param::Ranges::filePosMin, Param::Ranges::filePosMax, 1.f, 1.f },
+    { Param::ID::grainLen, Param::Name::grainLen, "Samples", 480.f, Param::Ranges::grainSizeMin, Param::Ranges::grainSizeMax, 1.f, 1.f }
+    
 };
 
 GrainAudioProcessor::GrainAudioProcessor()
