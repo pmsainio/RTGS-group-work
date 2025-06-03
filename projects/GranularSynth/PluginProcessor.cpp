@@ -3,11 +3,10 @@
 #include "juce_audio_formats/juce_audio_formats.h"
 #include <JuceHeader.h>
 
-static const std::vector<mrta::ParameterInfo> paramVector = 
+static const std::vector<mrta::ParameterInfo> paramVector 
 {
-    { Param::ID::volume, Param::Name::volume, Param::Ranges::volumeMin, Param::Ranges::volumeMax, 0.5f }
+    { Param::ID::volume, Param::Name::volume, "", 0.5f, Param::Ranges::volumeMin, Param::Ranges::volumeMax, 0.01f, 1.0f }
 };
-
 
 GrainAudioProcessor::GrainAudioProcessor()
     : paramManager(*this, "GranularSynth", paramVector)
@@ -15,7 +14,7 @@ GrainAudioProcessor::GrainAudioProcessor()
     paramManager.registerParameterCallback(Param::ID::volume,
     [this] (float value, bool /*force*/)
     {
-
+        DBG(value);
     });
 
 }
@@ -86,6 +85,10 @@ bool GrainAudioProcessor::acceptsMidi() const
     return true;
 }
 
+void GrainAudioProcessor::releaseResources()
+{
+}
+
 void GrainAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
 
@@ -95,7 +98,6 @@ void GrainAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
 
 }
-
 
 //==============================================================================
 const juce::String GrainAudioProcessor::getName() const { return JucePlugin_Name; }
