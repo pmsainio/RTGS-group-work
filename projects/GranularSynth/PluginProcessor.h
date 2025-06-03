@@ -4,7 +4,6 @@
 #include "../DSP/GrainEnvelope.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_formats/juce_audio_formats.h"
-#include "mrta_utils/Source/Parameter/ParameterManager.h"
 
 namespace Param 
 {
