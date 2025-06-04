@@ -178,7 +178,8 @@ add_plugin(granSynth
     SOURCES
         ${granSynth}/PluginProcessor.cpp
         ${granSynth}/PluginEditor.cpp
-        #${dsp_source}/SequenceScheduler.cpp
+        ${dsp_source}/GranSynth.cpp
+        ${dsp_source}/GrainSynthVoice.cpp
         ${dsp_source}/GrainEnvelope.cpp
     INCLUDE_DIRS
         ${gui_source}

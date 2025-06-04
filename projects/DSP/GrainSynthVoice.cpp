@@ -1,12 +1,6 @@
 #include "GrainSynthVoice.h"
 
-GrainSynthVoice::GrainSynthVoice()
-{
-}
-
-GrainSynthVoice::~GrainSynthVoice()
-{
-}
+GrainSynthVoice::GrainSynthVoice() {}
 
 bool GrainSynthVoice::canPlaySound(juce::SynthesiserSound* sound)
 {
@@ -14,54 +8,45 @@ bool GrainSynthVoice::canPlaySound(juce::SynthesiserSound* sound)
 }
 
 void GrainSynthVoice::startNote(int midiNoteNumber, float velocity,
-                                juce::SynthesiserSound* /*sound*/, int /*currentPitchWheelPosition*/)
+                              juce::SynthesiserSound*, int)
 {
     pitchRatio = std::pow(2.0, (midiNoteNumber - 60) / 12.0);
-
-    grainPosition = 0.0;
     level = velocity;
     isPlaying = true;
-}
-
-void GrainSynthVoice::stopNote(float /*velocity*/, bool /*allowTailOff*/)
-{
-    isPlaying = false;
-    clearCurrentNote();
-}
-
-void GrainSynthVoice::pitchWheelMoved(int)
-{
-}
-
-void GrainSynthVoice::controllerMoved(int, int)
-{
-}
-
-void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
-{
-    if (!isPlaying || sampleBuffer == nullptr)
-        return;
-
-    auto numChannels = outputBuffer.getNumChannels();
-
-    for (int i = 0; i < numSamples; ++i)
+    
+    if (granSynth && sampleBuffer)
     {
-        int index0 = static_cast<int>(grainPosition) % sampleBuffer->getNumSamples();
-        int index1 = (index0 + 1) % sampleBuffer->getNumSamples();
-        float frac = static_cast<float>(grainPosition - static_cast<float>(index0));
+        granSynth->setBuffer(sampleBuffer);
+        granSynth->setGrainEnv(grainAttack, grainSustain, grainRelease);
+        granSynth->setGrainAmp(grainAmp * level);
+        granSynth->synthesize(0.5f, 0.01f, 0.1f); 
+    }
+}
 
-        float sample = (1.0f - frac) * sampleBuffer->getSample(0, index0)
-                        + frac * sampleBuffer->getSample(0, index1);
+void GrainSynthVoice::stopNote(float, bool allowTailOff)
+{
+    if (!allowTailOff)
+    {
+        isPlaying = false;
+        clearCurrentNote();
+    }
+}
 
-        for (int ch = 0; ch < numChannels; ++ch)
-        {
-            outputBuffer.addSample(ch, startSample + i, sample * level);
-        }
-
-        grainPosition += pitchRatio;
-
-        if (grainPosition >= sampleBuffer->getNumSamples())
-            grainPosition -= sampleBuffer->getNumSamples();
+void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
+                                    int startSample, int numSamples)
+{
+    if (!isPlaying || !granSynth || !sampleBuffer) return;
+    
+    juce::AudioBuffer<float> grainBuffer(outputBuffer.getNumChannels(), numSamples);
+    grainBuffer.clear();
+    
+    // Process grains through granSynth
+    granSynth->processBlock(grainBuffer);
+    
+    // Apply to output with pitch and level
+    for (int ch = 0; ch < outputBuffer.getNumChannels(); ++ch)
+    {
+        outputBuffer.addFrom(ch, startSample, grainBuffer, ch, 0, numSamples, level);
     }
 }
 
@@ -69,3 +54,23 @@ void GrainSynthVoice::setSampleBuffer(juce::AudioBuffer<float>* buffer)
 {
     sampleBuffer = buffer;
 }
+
+void GrainSynthVoice::setGranSynth(DSP::GranSynth* newGranSynth)
+{
+    granSynth = newGranSynth;
+    if (granSynth)
+    {
+        granSynth->prepare(sampleRate);
+    }
+}
+
+void GrainSynthVoice::setGrainParameters(float attackMs, float sustainMs, float releaseMs, float amplitude)
+{
+    grainAttack = attackMs;
+    grainSustain = sustainMs;
+    grainRelease = releaseMs;
+    grainAmp = amplitude;
+}
+
+void GrainSynthVoice::pitchWheelMoved(int) {}
+void GrainSynthVoice::controllerMoved(int, int) {}
