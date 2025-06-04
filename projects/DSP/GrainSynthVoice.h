@@ -34,3 +34,10 @@ private:
     float grainRelease = 20.0f;
     float grainAmp = 1.0f;
 };
+
+class GrainSynthSound : public juce::SynthesiserSound
+{
+public:
+    bool appliesToNote(int) override { return true; }
+    bool appliesToChannel(int) override { return true; }
+};
