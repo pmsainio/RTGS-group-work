@@ -17,6 +17,9 @@ static const std::vector<mrta::ParameterInfo> paramVector
 GrainAudioProcessor::GrainAudioProcessor()
     : paramManager(*this, "GranularSynth", paramVector)
 {
+    voice = new GrainSynthVoice();
+    synth.addSound(new GrainSynthSound());
+    synth.addVoice(voice);
     paramManager.registerParameterCallback(Param::ID::volume,
     [this] (float value, bool /*force*/)
     {
@@ -106,14 +109,14 @@ void GrainAudioProcessor::checkForRestoredPath()
 
 }
 
-void GrainAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
+void GrainAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
     buffer.clear();
 
     const int numSamples = buffer.getNumSamples();
     auto* output = buffer.getWritePointer(0);
-    synth.renderNextBlock(buffer, 0, numSamples);
+    synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
 }
 
 bool GrainAudioProcessor::acceptsMidi() const

@@ -88,7 +88,8 @@ class GrainAudioProcessor : public juce::AudioProcessor
         mrta::ParameterManager paramManager;
         DSP::GrainEnvelope env;
         juce::AudioFormatManager formatManager;
-        GrainSynthVoice synth;
+        juce::Synthesiser synth;
+        GrainSynthVoice* voice { nullptr };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainAudioProcessor)
 };
