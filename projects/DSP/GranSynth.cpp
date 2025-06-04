@@ -24,7 +24,7 @@ void GranSynth::prepare(double newSampleRate)
     sampleRate = newSampleRate; 
     for (auto& grain : grains)
     {
-        grain.envelope.prepare(sampleRate, 0);
+        grain.envelope->prepare(sampleRate, 0);
     }
 }
 
@@ -89,7 +89,7 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
 
         grain.envelopeBuffer.setSize(1, samplesToProcess, false, false, true);
         float* envelopeData = grain.envelopeBuffer.getWritePointer(0);
-        grain.envelope.process(envelopeData, static_cast<unsigned int>(samplesToProcess));
+        grain.envelope->process(envelopeData, static_cast<unsigned int>(samplesToProcess));
 
         for (int i = 0; i < samplesToProcess; i++)
         {
@@ -127,9 +127,9 @@ void GranSynth::setGrainEnv(float attack, float release, float sustain)
 
     for (auto& grain : grains)
     {
-        grain.envelope.setAttackTime(grainAttack);
-        grain.envelope.setReleaseTime(grainRelease);
-        grain.envelope.setSustainTime(grainSustain);
+        grain.envelope->setAttackTime(grainAttack);
+        grain.envelope->setReleaseTime(grainRelease);
+        grain.envelope->setSustainTime(grainSustain);
 
     }
 }
@@ -155,7 +155,7 @@ void GranSynth::trigger(int startPos, int endPos)
             grain.active = true;
             grain.amplitude = grainAmplitude;
             
-            grain.envelope.start();
+            grain.envelope->start();
             break;
         }
     }

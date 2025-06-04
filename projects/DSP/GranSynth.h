@@ -40,13 +40,15 @@ namespace DSP
         private:
             struct ActiveGrain
             {
-                GrainEnvelope envelope; 
+                std::unique_ptr<GrainEnvelope> envelope;
                 int currPos = 0;
                 int startPos = 0;
                 int endPos = 0;
                 bool active = true; 
                 float amplitude = 0.f;
                 juce::AudioBuffer<float> envelopeBuffer;
+                
+                ActiveGrain() = default;
             };
 
             void trigger(int startPos, int endPos);
