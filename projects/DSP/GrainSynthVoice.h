@@ -6,6 +6,7 @@ class GrainSynthVoice : public juce::SynthesiserVoice
 {
 public:
     GrainSynthVoice();
+    ~GrainSynthVoice();
 
     bool canPlaySound(juce::SynthesiserSound* sound) override;
     void startNote(int midiNoteNumber, float velocity,
@@ -26,4 +27,11 @@ private:
     juce::AudioBuffer<float>* sampleBuffer = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainSynthVoice)
+};
+
+class GrainSynthSound : public juce::SynthesiserSound
+{
+public:
+    bool appliesToNote(int) override { return true; }
+    bool appliesToChannel(int) override { return true; }
 };

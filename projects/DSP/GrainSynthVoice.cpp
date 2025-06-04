@@ -4,6 +4,10 @@ GrainSynthVoice::GrainSynthVoice()
 {
 }
 
+GrainSynthVoice::~GrainSynthVoice()
+{
+}
+
 bool GrainSynthVoice::canPlaySound(juce::SynthesiserSound* sound)
 {
     return dynamic_cast<juce::SynthesiserSound*>(sound) != nullptr;
