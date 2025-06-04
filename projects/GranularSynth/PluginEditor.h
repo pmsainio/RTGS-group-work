@@ -13,9 +13,11 @@ class GrainAudioProcessorEditor : public juce::AudioProcessorEditor
         void paint(juce::Graphics& g) override;
         void resized() override;
 
-        private: 
-            GrainAudioProcessor& audioProcessor;
-            mrta::GenericParameterEditor paramEditor;
+    private: 
+        GrainAudioProcessor& audioProcessor;
+        mrta::GenericParameterEditor paramEditor;
 
-            JUCE_DECLARE_NON_COPYABLE(GrainAudioProcessorEditor);
+        juce::Slider rangeSlider;
+
+        JUCE_DECLARE_NON_COPYABLE(GrainAudioProcessorEditor);
 };

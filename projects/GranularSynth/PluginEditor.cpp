@@ -7,6 +7,19 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
     paramEditor(audioProcessor.getParamManager())
 {
     addAndMakeVisible(paramEditor);
+
+    addAndMakeVisible(rangeSlider);
+    rangeSlider.juce::Slider::setSliderStyle(juce::Slider::SliderStyle::TwoValueHorizontal);
+    rangeSlider.setRange(0.0, 1.0); // desired range
+    rangeSlider.setMinAndMaxValues(0.2, 0.8); // initial min/max values
+    
+    rangeSlider.onValueChange = [this] {
+        // handle value changes here
+        auto min = rangeSlider.getMinValue();
+        auto max = rangeSlider.getMaxValue();
+        // update parameters as needed
+    };
+
     getLookAndFeel().setColour(juce::ResizableWindow::backgroundColourId, juce::Colours::black);
     setSize(6 * 100, 6 * 100);
 }
@@ -24,5 +37,12 @@ void GrainAudioProcessorEditor::paint(juce::Graphics& g)
 
 void GrainAudioProcessorEditor::resized()
 {
-    paramEditor.setBounds(getLocalBounds());
+    auto bounds = getLocalBounds();
+    
+    // allocate space for the slider
+    auto sliderArea = bounds.removeFromBottom(50);
+    rangeSlider.setBounds(sliderArea.reduced(10));
+    
+    // give the remaining space to the parameter editor
+    paramEditor.setBounds(bounds);
 }
