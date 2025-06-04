@@ -16,7 +16,7 @@ float GranSynth::frandom()
 
 double GranSynth::randomDuration(float minLength, float maxLength)
 {
-    return (minLength + frandom() * (maxLength - minLength) * sampleRate);
+    return (minLength + frandom() * (maxLength - minLength) * sampleRate * 0.001);
 }
 
 void GranSynth::prepare(double newSampleRate)
