@@ -2,7 +2,6 @@
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_core/system/juce_PlatformDefs.h"
 #include <cstdlib>
-#include <iostream>
 
 namespace DSP {
 
@@ -55,11 +54,8 @@ void GranSynth::synthesize(float density, float minSize, float maxSize)
         return;
     }
 
-    DBG("Synthesizing grains across " << fileLength << " samples");
-    
     float grainRate = density * 50.0f;  
     float gap = sampleRate / grainRate;
-
     float currPos = 0.f;
     int grainsTriggered = 0;
 
@@ -69,13 +65,15 @@ void GranSynth::synthesize(float density, float minSize, float maxSize)
         int startPos = static_cast<int>(currPos);
         int endPos = startPos + static_cast<int>(grainSize);
         
-        if (endPos > fileLength)
+        endPos = std::min(endPos, fileLength);
+        
+        if ((endPos - startPos) < (sampleRate * 0.010f)) 
             break;
         
         trigger(startPos, endPos);
         grainsTriggered++;
         
-        currPos += gap * (0.8f + 0.4f * frandom());
+        currPos += (fileLength - maxSize) * frandom(); 
     }
 
     DBG("Triggered " << grainsTriggered << " grains");
@@ -89,53 +87,52 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
     const int numChannels = outputBuffer.getNumChannels();
     outputBuffer.clear();
 
-    // Temporary buffer for envelope processing
-    juce::AudioBuffer<float> envelopeBuffer(1, numSamples);
-    
     for (auto& grain : grains)
     {
         if (!grain.active || !grain.envelope) continue;
-
-        int samplesRemaining = grain.endPos - grain.currPos;
-        int samplesToProcess = std::min(numSamples, samplesRemaining);
+        int samplesToProcess = numSamples;
+        int samplesUntilEnd = grain.endPos - grain.currPos;
         
-        if (samplesToProcess <= 0)
+        if (samplesUntilEnd <= 0)
         {
             grain.active = false;
-            DBG("Deactivating grain, no samples to process.");
             continue;
         }
+        
+        samplesToProcess = std::min(samplesToProcess, samplesUntilEnd);
 
         // Process envelope
-        envelopeBuffer.clear();
+        juce::AudioBuffer<float> envelopeBuffer(1, samplesToProcess);
         float* envelopeData = envelopeBuffer.getWritePointer(0);
         grain.envelope->process(envelopeData, samplesToProcess);
 
         for (int i = 0; i < samplesToProcess; i++)
         {
-            if (grain.currPos >= fileLength)
+            if (grain.currPos >= sampleBuffer->getNumSamples())
             {
                 grain.active = false;
-                DBG("Deactivating grain, reached file length.");
                 break;
             }
 
             float sample = sampleBuffer->getSample(0, grain.currPos);
             float envValue = envelopeData[i];
             
-            outputBuffer.addSample(0, i, sample * envValue * grain.amplitude);
+            // Apply windowing and amplitude
+            float windowedSample = sample * envValue * grain.amplitude;
+            
+            outputBuffer.addSample(0, i, windowedSample);
             if (numChannels > 1)
             {
-                outputBuffer.addSample(1, i, sample * envValue * grain.amplitude);
+                outputBuffer.addSample(1, i, windowedSample);
             }
             
             grain.currPos++;
         }
 
-        if (grain.currPos >= grain.endPos)
+        if (grain.currPos >= grain.endPos || grain.envelope->isOff())
         {
             grain.active = false;
-            DBG("Deactivating grain, reached end position.");
+            DBG("Grain finished at pos: " << grain.currPos);
         }
     }
 }
@@ -176,8 +173,17 @@ void GranSynth::trigger(int startPos, int endPos)
             grain.amplitude = grainAmplitude;
             
             if (grain.envelope) {
-                grain.envelope->start();  // Start the envelope
-                DBG("Triggered grain [" << startPos << "-" << endPos << "]");
+                grain.envelope->prepare(sampleRate, 0); // Re-prepare to reset envelope
+                grain.envelope->start();
+                
+                // Calculate envelope times based on grain duration
+                float grainDurationMs = 1000.0f * (endPos - startPos) / sampleRate;
+                grain.envelope->setAttackTime(juce::jmin(grainAttack, grainDurationMs * 0.3f));
+                grain.envelope->setReleaseTime(juce::jmin(grainRelease, grainDurationMs * 0.3f));
+                grain.envelope->setSustainTime(grainDurationMs * 0.4f);
+                
+                DBG("Triggered grain [" << startPos << "-" << endPos << 
+                    "] duration: " << grainDurationMs << "ms");
                 return;
             }
         }
