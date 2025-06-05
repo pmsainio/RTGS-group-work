@@ -76,7 +76,6 @@ GrainAudioProcessor::GrainAudioProcessor()
         [this](float value, bool /*force*/) {
             if (voice) {
                 voice->setGrainSize(value);
-            
             }
         });
 

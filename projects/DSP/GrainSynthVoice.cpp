@@ -22,13 +22,21 @@ void GrainSynthVoice::startNote(int midiNoteNumber, float velocity,
         granSynth->setGrainEnv(grainAttack, grainSustain, grainRelease);
         granSynth->setGrainAmp(0.1 * grainAmp * level);
         
-        float density = 10.0f; 
-        float minSize = grainSize * 0.8f;
-        float maxSize = grainSize * 1.2f;
+        float density = 10.0f;
         
         DBG("Triggering grains with size " << minSize << "-" << maxSize << " samples");
         granSynth->synthesize(density, minSize, maxSize);
     }
+}
+
+void GrainSynthVoice::setMinSize(float newMinSize)
+{
+    minSize = newMinSize;
+}
+
+void GrainSynthVoice::setMaxSize(float newMaxSize)
+{
+    maxSize = newMaxSize;
 }
 
 void GrainSynthVoice::stopNote(float, bool allowTailOff)
