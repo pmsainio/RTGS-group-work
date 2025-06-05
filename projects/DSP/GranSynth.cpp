@@ -61,7 +61,6 @@ void GranSynth::synthesize(float density, float minSize, float maxSize)
 
     while (currPos < fileLength)
     {
-        float maxSize = minSize + frandom() * 10;
         float grainSize = randomDuration(minSize, maxSize);
         int startPos = static_cast<int>(currPos);
         int endPos = startPos + static_cast<int>(grainSize);
