@@ -68,8 +68,8 @@ void GranSynth::synthesize(float density, float minSize, float maxSize)
         
         endPos = std::min(endPos, fileLength);
         
-        if ((endPos - startPos) < (sampleRate * 0.010f)) 
-            break;
+        //if ((endPos - startPos) < (sampleRate * 0.010f)) 
+        //  break;
         
         trigger(startPos, endPos);
         grainsTriggered++;

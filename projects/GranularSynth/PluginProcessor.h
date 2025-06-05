@@ -39,8 +39,8 @@ namespace Param
         static constexpr float susMax  { 1.f };
         static constexpr float relMin  { 5.f }; // Add offset
         static constexpr float relMax  { 25.f }; // Add offset
-        static constexpr float filePosMin { 0.f };
-        static constexpr float filePosMax { 1.f };
+        static constexpr float filePosMin { 480.f };
+        static constexpr float filePosMax { 3360.f };
         static constexpr float grainSizeMin { 480.f };
         static constexpr float grainSizeMax { 3360.f };
     }

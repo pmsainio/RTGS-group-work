@@ -72,10 +72,10 @@ GrainAudioProcessor::GrainAudioProcessor()
             }
         });
 
-    paramManager.registerParameterCallback(Param::ID::grainLen,
+    paramManager.registerParameterCallback(Param::ID::filePos,
         [this](float value, bool /*force*/) {
             if (voice) {
-                voice->setGrainSize(value);
+                voice->setMinSize(value);
             }
         });
 
