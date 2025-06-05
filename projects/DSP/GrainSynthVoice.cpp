@@ -20,9 +20,9 @@ void GrainSynthVoice::startNote(int midiNoteNumber, float velocity,
         
         granSynth->setBuffer(sampleBuffer);
         granSynth->setGrainEnv(grainAttack, grainSustain, grainRelease);
-        granSynth->setGrainAmp(grainAmp * level);
+        granSynth->setGrainAmp(0.1 * grainAmp * level);
         
-        float density = 50.0f; 
+        float density = 10.0f; 
         float minSize = grainSize * 0.8f;
         float maxSize = grainSize * 1.2f;
         
