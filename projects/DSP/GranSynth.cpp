@@ -119,18 +119,17 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
     }
 }
 
-void GranSynth::setGrainEnv(float attack, float release, float sustain)
+void GranSynth::setGrainEnv(float attack, float sustain, float release)
 {
-    grainAttack = attack;
-    grainRelease = release;
-    grainSustain = sustain;
-
+    grainAttack = juce::jlimit(1.0f, 100.0f, attack);
+    grainSustain = juce::jlimit(1.0f, 1000.0f, sustain);
+    grainRelease = juce::jlimit(1.0f, 100.0f, release);
+    
     for (auto& grain : grains)
     {
         grain.envelope->setAttackTime(grainAttack);
-        grain.envelope->setReleaseTime(grainRelease);
         grain.envelope->setSustainTime(grainSustain);
-
+        grain.envelope->setReleaseTime(grainRelease);
     }
 }
 

@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "juce_audio_formats/juce_audio_formats.h"
+#include "mrta_utils/Source/Parameter/ParameterManager.h"
 #include <JuceHeader.h>
 #include <memory>
 
@@ -10,9 +11,8 @@ static const std::vector<mrta::ParameterInfo> paramVector
     { Param::ID::attack, Param::Name::attack, "ms", 5.f, Param::Ranges::attackMin, Param::Ranges::attackMax, 0.1f, 1.0f },
     { Param::ID::release, Param::Name::release, "ms", 5.f, Param::Ranges::relMin, Param::Ranges::relMax, 0.1f, 1.0f },
     { Param::ID::sustain, Param::Name::sustain, "ms", 0.01f, Param::Ranges::susMin, Param::Ranges::susMax, 0.1f, 1.0f },
-    { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, Param::Ranges::filePosMin, Param::Ranges::filePosMax, 1.f, 1.f },
-    { Param::ID::grainLen, Param::Name::grainLen, "Samples", 480.f, Param::Ranges::grainSizeMin, Param::Ranges::grainSizeMax, 1.f, 1.f }
-    
+    { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, 0.f, 1.f, 0.001f, 1.f },
+    { Param::ID::grainLen, Param::Name::grainLen, "Samples", 480.f, Param::Ranges::grainSizeMin, Param::Ranges::grainSizeMax, 1.f, 1.f }  
 };
 
 GrainAudioProcessor::GrainAudioProcessor()
@@ -24,42 +24,66 @@ GrainAudioProcessor::GrainAudioProcessor()
     voice = new GrainSynthVoice();
     synth.addSound(new GrainSynthSound());
     synth.addVoice(voice);
-    paramManager.registerParameterCallback(Param::ID::volume,
-    [this] (float value, bool /*force*/)
-    {
-        DBG(value);
-    });
+    
+       paramManager.registerParameterCallback(Param::ID::volume,
+        [this](float value, bool /*force*/) {
+            if (voice) {
+                voice->setGrainAmp(value);
+                if (auto* granSynth = voice->getGranSynth()) {
+                    granSynth->setGrainAmp(value);
+                }
+            }
+        });
 
     paramManager.registerParameterCallback(Param::ID::attack,
-    [this] (float value, bool /*force*/)
-    {
-        DBG(value);
-    });
-
-    paramManager.registerParameterCallback(Param::ID::release,
-    [this] (float value, bool /*force*/)
-    {
-        DBG(value);
-    });
+        [this](float value, bool /*force*/) {
+            if (voice) {
+                voice->setGrainAttack(value);
+                if (auto* granSynth = voice->getGranSynth()) {
+                    granSynth->setGrainEnv(value, 
+                                        voice->getGrainSustain(), 
+                                        voice->getGrainRelease());
+                }
+            }
+        });
 
     paramManager.registerParameterCallback(Param::ID::sustain,
-    [this] (float value, bool /*force*/)
-    {
-        DBG(value);
-    });
+        [this](float value, bool /*force*/) {
+            if (voice) {
+                voice->setGrainSustain(value);
+                if (auto* granSynth = voice->getGranSynth()) {
+                    granSynth->setGrainEnv(voice->getGrainAttack(), 
+                                         value, 
+                                         voice->getGrainRelease());
+                }
+            }
+        });
 
-    paramManager.registerParameterCallback(Param::ID::filePos,
-    [this] (float value, bool /*force*/)
-    {
-        DBG(value);
-    });
+    paramManager.registerParameterCallback(Param::ID::release,
+        [this](float value, bool /*force*/) {
+            if (voice) {
+                voice->setGrainRelease(value);
+                if (auto* granSynth = voice->getGranSynth()) {
+                    granSynth->setGrainEnv(voice->getGrainAttack(), 
+                                         voice->getGrainSustain(), 
+                                         value);
+                }
+            }
+        });
 
     paramManager.registerParameterCallback(Param::ID::grainLen,
-    [this] (float value, bool /*force*/)
-    {
-        DBG(value);
-    });
+        [this](float value, bool /*force*/) {
+            if (voice) {
+                voice->setGrainSize(value);
+            
+            }
+        });
 
+    paramManager.registerParameterCallback(Param::ID::filePos,
+        [this](float value, bool /*force*/) {
+            float grainRelativePos = value * paramManager.getAPVTS().getRawParameterValue(Param::ID::grainLen)->load();
+            voice->setFilePosition(grainRelativePos);
+        });
 }
 
 GrainAudioProcessor::~GrainAudioProcessor()

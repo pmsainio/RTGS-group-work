@@ -42,8 +42,8 @@ namespace DSP
             {
                 std::unique_ptr<GrainEnvelope> envelope;
                 int currPos = 0;
-                int startPos = 0;
-                int endPos = 1000;
+                int startPos = 5000;
+                int endPos = 76000;
                 bool active = true; 
                 float amplitude = 0.f;
                 juce::AudioBuffer<float> envelopeBuffer;

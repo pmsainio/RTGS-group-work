@@ -20,10 +20,12 @@ void GrainSynthVoice::startNote(int midiNoteNumber, float velocity,
         granSynth->setGrainEnv(grainAttack, grainSustain, grainRelease);
         granSynth->setGrainAmp(grainAmp * level);
         
-        float density = 0.5f; 
-        float minSize = grainAttack + grainSustain + grainRelease; 
-        float maxSize = minSize * 2.0f; 
-        granSynth->synthesize(density, minSize, maxSize); 
+        int startSample = static_cast<int>(filePositionInSamples * sampleBuffer->getNumSamples());
+        int endSample = startSample + static_cast<int>(grainSize);
+        
+        endSample = juce::jmin(endSample, sampleBuffer->getNumSamples());
+        
+        granSynth->synthesize(0.5f, grainSize * 0.5f, grainSize * 1.5f);
     }
 }
 

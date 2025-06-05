@@ -20,6 +20,23 @@ public:
     void setGranSynth(DSP::GranSynth* newGranSynth);
     void setGrainParameters(float attackMs, float sustainMs, float releaseMs, float amplitude);
 
+    void setGrainAmp(float amp) { grainAmp = amp; }
+    void setGrainAttack(float attack) { grainAttack = attack; }
+    void setGrainSustain(float sustain) { grainSustain = sustain; }
+    void setGrainRelease(float release) { grainRelease = release; }
+    void setGrainSize(float size) { grainSize = size; }
+
+    float getGrainAttack() const { return grainAttack; }
+    float getGrainSustain() const { return grainSustain; }
+    float getGrainRelease() const { return grainRelease; }
+
+    void setFilePosition(float posInSamples) { 
+        filePositionInSamples = posInSamples; 
+    }
+    
+    
+    DSP::GranSynth* getGranSynth() const { return granSynth; }
+
 private:
     DSP::GranSynth* granSynth = nullptr;
     juce::AudioBuffer<float>* sampleBuffer = nullptr;
@@ -33,6 +50,9 @@ private:
     float grainSustain = 50.0f;
     float grainRelease = 20.0f;
     float grainAmp = 1.0f;
+
+    float grainSize = 480.0f;
+    float filePositionInSamples = 0.0f;
 };
 
 class GrainSynthSound : public juce::SynthesiserSound
