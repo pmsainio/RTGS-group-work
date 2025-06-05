@@ -39,7 +39,7 @@ namespace DSP
 
         private:
             struct ActiveGrain {
-                std::unique_ptr<GrainEnvelope> envelope { std::make_unique<GrainEnvelope>() };  // Initialize here
+                std::unique_ptr<GrainEnvelope> envelope { std::make_unique<GrainEnvelope>() }; 
                 int currPos = 0;
                 int startPos = 5000;
                 int endPos = 76000;

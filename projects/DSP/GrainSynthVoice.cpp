@@ -22,8 +22,7 @@ void GrainSynthVoice::startNote(int midiNoteNumber, float velocity,
         granSynth->setGrainEnv(grainAttack, grainSustain, grainRelease);
         granSynth->setGrainAmp(grainAmp * level);
         
-        // Trigger grains immediately with explicit parameters
-        float density = 0.5f;  // grains per second
+        float density = 50.0f; 
         float minSize = grainSize * 0.8f;
         float maxSize = grainSize * 1.2f;
         

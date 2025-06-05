@@ -1,6 +1,8 @@
 #include "GranSynth.h"
 #include "juce_audio_basics/juce_audio_basics.h"
+#include "juce_core/system/juce_PlatformDefs.h"
 #include <cstdlib>
+#include <iostream>
 
 namespace DSP {
 
@@ -30,6 +32,10 @@ void GranSynth::prepare(double newSampleRate)
     for (auto& grain : grains)
     {
         grain.envelope->prepare(sampleRate, 0);
+        grain.envelope->setAttackTime(grainAttack);
+        grain.envelope->setSustainTime(grainSustain);
+        grain.envelope->setReleaseTime(grainRelease);
+        grain.envelope->setGrainAmplitude(grainAmplitude);
     }
 }
 
@@ -83,9 +89,12 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
     const int numChannels = outputBuffer.getNumChannels();
     outputBuffer.clear();
 
+    // Temporary buffer for envelope processing
+    juce::AudioBuffer<float> envelopeBuffer(1, numSamples);
+    
     for (auto& grain : grains)
     {
-        if (!grain.active || !grain.envelope) continue; 
+        if (!grain.active || !grain.envelope) continue;
 
         int samplesRemaining = grain.endPos - grain.currPos;
         int samplesToProcess = std::min(numSamples, samplesRemaining);
@@ -93,28 +102,31 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
         if (samplesToProcess <= 0)
         {
             grain.active = false;
+            DBG("Deactivating grain, no samples to process.");
             continue;
         }
 
-        grain.envelopeBuffer.setSize(1, samplesToProcess, false, false, true);
-        float* envelopeData = grain.envelopeBuffer.getWritePointer(0);
-        grain.envelope->process(envelopeData, static_cast<unsigned int>(samplesToProcess));
+        // Process envelope
+        envelopeBuffer.clear();
+        float* envelopeData = envelopeBuffer.getWritePointer(0);
+        grain.envelope->process(envelopeData, samplesToProcess);
+
         for (int i = 0; i < samplesToProcess; i++)
         {
             if (grain.currPos >= fileLength)
             {
                 grain.active = false;
+                DBG("Deactivating grain, reached file length.");
                 break;
             }
 
             float sample = sampleBuffer->getSample(0, grain.currPos);
             float envValue = envelopeData[i];
-            float gain = envValue * grain.amplitude;
             
-            outputBuffer.addSample(0, i, sample * gain);
+            outputBuffer.addSample(0, i, sample * envValue * grain.amplitude);
             if (numChannels > 1)
             {
-                outputBuffer.addSample(1, i, sample * gain);
+                outputBuffer.addSample(1, i, sample * envValue * grain.amplitude);
             }
             
             grain.currPos++;
@@ -123,14 +135,9 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
         if (grain.currPos >= grain.endPos)
         {
             grain.active = false;
+            DBG("Deactivating grain, reached end position.");
         }
     }
-    
-    int activeGrains = 0;
-    for (auto& grain : grains) {
-        if (grain.active) activeGrains++;
-    }
-    DBG("Processing " << activeGrains << " active grains");
 }
 
 void GranSynth::setGrainEnv(float attack, float sustain, float release)
@@ -158,7 +165,7 @@ void GranSynth::setGrainAmp(float amplitude)
 
 void GranSynth::trigger(int startPos, int endPos)
 {
-   for (auto& grain : grains)
+    for (auto& grain : grains)
     {
         if (!grain.active)
         {
@@ -169,6 +176,7 @@ void GranSynth::trigger(int startPos, int endPos)
             grain.amplitude = grainAmplitude;
             
             if (grain.envelope) {
+                grain.envelope->start();  // Start the envelope
                 DBG("Triggered grain [" << startPos << "-" << endPos << "]");
                 return;
             }
