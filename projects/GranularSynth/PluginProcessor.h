@@ -90,7 +90,8 @@ class GrainAudioProcessor : public juce::AudioProcessor
         DSP::GrainEnvelope env;
         juce::Synthesiser synth;
         GrainSynthVoice* voice { nullptr };
-
+        std::unique_ptr<DSP::GranSynth> granSynth;
+        
         juce::AudioFormatManager formatManager;
         std::unique_ptr<juce::AudioBuffer<float>> fileBuffer;
 

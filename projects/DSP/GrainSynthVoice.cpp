@@ -16,16 +16,19 @@ void GrainSynthVoice::startNote(int midiNoteNumber, float velocity,
     
     if (granSynth && sampleBuffer)
     {
+        DBG("Starting note - buffer has " << sampleBuffer->getNumSamples() << " samples");
+        
         granSynth->setBuffer(sampleBuffer);
         granSynth->setGrainEnv(grainAttack, grainSustain, grainRelease);
         granSynth->setGrainAmp(grainAmp * level);
         
-        int startSample = static_cast<int>(filePositionInSamples * sampleBuffer->getNumSamples());
-        int endSample = startSample + static_cast<int>(grainSize);
+        // Trigger grains immediately with explicit parameters
+        float density = 0.5f;  // grains per second
+        float minSize = grainSize * 0.8f;
+        float maxSize = grainSize * 1.2f;
         
-        endSample = juce::jmin(endSample, sampleBuffer->getNumSamples());
-        
-        granSynth->synthesize(0.5f, grainSize * 0.5f, grainSize * 1.5f);
+        DBG("Triggering grains with size " << minSize << "-" << maxSize << " samples");
+        granSynth->synthesize(density, minSize, maxSize);
     }
 }
 
@@ -46,14 +49,17 @@ void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
     juce::AudioBuffer<float> grainBuffer(outputBuffer.getNumChannels(), numSamples);
     grainBuffer.clear();
     
-    // Process grains through granSynth
     granSynth->processBlock(grainBuffer);
-    
-    // Apply to output with pitch and level
+
     for (int ch = 0; ch < outputBuffer.getNumChannels(); ++ch)
     {
         outputBuffer.addFrom(ch, startSample, grainBuffer, ch, 0, numSamples, level);
     }
+
+    DBG("Render - Playing: " << (int)isPlaying 
+    << ", GranSynth: " << (granSynth ? "valid" : "null") 
+
+    << ", Buffer: " << (sampleBuffer ? "valid" : "null"));
 }
 
 void GrainSynthVoice::setSampleBuffer(juce::AudioBuffer<float>* buffer)

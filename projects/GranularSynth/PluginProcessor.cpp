@@ -20,10 +20,11 @@ GrainAudioProcessor::GrainAudioProcessor()
 {
 
     formatManager.registerBasicFormats();
-
+    granSynth = std::make_unique<DSP::GranSynth>(sampleRate); 
     voice = new GrainSynthVoice();
     synth.addSound(new GrainSynthSound());
     synth.addVoice(voice);
+    voice->setGranSynth(granSynth.get()); 
     
        paramManager.registerParameterCallback(Param::ID::volume,
         [this](float value, bool /*force*/) {
@@ -93,10 +94,13 @@ GrainAudioProcessor::~GrainAudioProcessor()
 void GrainAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     this->sampleRate = sampleRate; 
-    formatManager.registerBasicFormats();
 
-    juce::String fileToLoad;
-    readFile(fileToLoad);
+    if (granSynth) {
+        granSynth->prepare(sampleRate);
+    }
+
+    // Initialize the synth
+    synth.setCurrentPlaybackSampleRate(sampleRate);
 
     checkForRestoredPath();
 }
@@ -128,6 +132,18 @@ void GrainAudioProcessor::readFile(juce::String path)
     {
         DBG("Failed to create reader for file");
     }
+
+    if (fileBuffer) {
+    DBG("Buffer created - Channels: " << fileBuffer->getNumChannels() 
+        << ", Samples: " << fileBuffer->getNumSamples());
+        
+    // Quick content check
+    float rms = 0;
+    for (int i = 0; i < fileBuffer->getNumSamples(); i += 100) {
+        rms += std::abs(fileBuffer->getSample(0, i));
+    }
+    DBG("Approx RMS: " << (rms / (fileBuffer->getNumSamples()/100)));
+}
 }
 
 void GrainAudioProcessor::checkForRestoredPath()
@@ -140,7 +156,6 @@ void GrainAudioProcessor::checkForRestoredPath()
         std::swap(chosenPath, path);
         restoredPath = "";
     }
-
 }
 
 void GrainAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
