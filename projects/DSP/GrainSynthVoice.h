@@ -24,7 +24,8 @@ public:
     void setGrainAttack(float attack) { grainAttack = attack; }
     void setGrainSustain(float sustain) { grainSustain = sustain; }
     void setGrainRelease(float release) { grainRelease = release; }
-    void setGrainSize(float size) { grainSize = size; }
+    void setMinSize(float newMinSize);
+    void setMaxSize(float newMaxSize);
 
     float getGrainAttack() const { return grainAttack; }
     float getGrainSustain() const { return grainSustain; }
@@ -50,6 +51,9 @@ private:
     float grainSustain = 50.0f;
     float grainRelease = 20.0f;
     float grainAmp = 1.0f;
+
+    float minSize = 480.f;
+    float maxSize = 3360.f;
 
     float grainSize = 480.0f;
     float filePositionInSamples = 0.0f;
