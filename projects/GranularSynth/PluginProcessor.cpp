@@ -2,6 +2,7 @@
 #include "PluginEditor.h"
 #include "juce_audio_formats/juce_audio_formats.h"
 #include <JuceHeader.h>
+#include <memory>
 
 static const std::vector<mrta::ParameterInfo> paramVector 
 {
@@ -17,6 +18,9 @@ static const std::vector<mrta::ParameterInfo> paramVector
 GrainAudioProcessor::GrainAudioProcessor()
     : paramManager(*this, "GranularSynth", paramVector)
 {
+
+    formatManager.registerBasicFormats();
+
     voice = new GrainSynthVoice();
     synth.addSound(new GrainSynthSound());
     synth.addVoice(voice);
@@ -69,10 +73,12 @@ void GrainAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 
     juce::String fileToLoad;
     readFile(fileToLoad);
+
+    checkForRestoredPath();
 }
 
 void GrainAudioProcessor::readFile(juce::String path)
-{
+{   
     juce::File file(path);
     DBG("Trying to load file: " << path << "\n");
     if (!file.existsAsFile())
@@ -80,13 +86,17 @@ void GrainAudioProcessor::readFile(juce::String path)
         DBG("File doesn't exist");
         return;
     }
-
+    
     std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
 
     if (reader != nullptr)
-    {
-        juce::AudioBuffer<float> fileBuffer((int)reader->numChannels, (int)reader->lengthInSamples);
-        reader->read(&fileBuffer, 0, (int)reader->lengthInSamples, 0, true, true);
+    {   
+        fileBuffer = std::make_unique<juce::AudioBuffer<float>>((int)reader->numChannels, (int)reader->lengthInSamples);
+        reader->read(fileBuffer.get(), 0, (int)reader->lengthInSamples, 0, true, true);
+
+        if (voice) {
+            voice->setSampleBuffer(fileBuffer.get());
+        }
 
         DBG("Audio Read:" + file.getFileName());
     }
