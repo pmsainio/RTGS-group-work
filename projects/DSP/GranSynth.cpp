@@ -4,10 +4,15 @@
 
 namespace DSP {
 
-GranSynth::GranSynth(double sampleRate) 
+GranSynth::GranSynth(double sampleRate) : sampleRate(sampleRate)
 {
     grains.resize(64);
+    for (auto& grain : grains) {
+        grain.envelope = std::make_unique<GrainEnvelope>();
+    }
 }
+
+GranSynth::~GranSynth() = default;
 
 float GranSynth::frandom()
 {
@@ -16,7 +21,7 @@ float GranSynth::frandom()
 
 double GranSynth::randomDuration(float minLength, float maxLength)
 {
-    return (minLength + frandom() * (maxLength - minLength) * sampleRate * 0.001);
+    return (minLength + frandom() * (maxLength - minLength));
 }
 
 void GranSynth::prepare(double newSampleRate)
@@ -39,31 +44,35 @@ void GranSynth::setBuffer(juce::AudioBuffer<float>* buffer)
 
 void GranSynth::synthesize(float density, float minSize, float maxSize)
 {
-    if (!sampleBuffer || fileLength == 0) { return; }
-
-    for (auto& grain : grains)
-    {
-        grain.active = false;
+    if (!sampleBuffer || fileLength == 0) {
+        DBG("Cannot synthesize - no buffer or empty file");
+        return;
     }
 
-    float grainRate = 1.f + density + 49.f;
+    DBG("Synthesizing grains across " << fileLength << " samples");
+    
+    float grainRate = density * 50.0f;  
     float gap = sampleRate / grainRate;
 
     float currPos = 0.f;
+    int grainsTriggered = 0;
 
     while (currPos < fileLength)
     {
-        float grainSize = minSize + frandom() * (maxSize - minSize);
-        int grainSizeSamples = static_cast<int>(grainSize * sampleRate);
+        float grainSize = randomDuration(minSize, maxSize);
         int startPos = static_cast<int>(currPos);
-        int endPos = startPos + grainSizeSamples;
+        int endPos = startPos + static_cast<int>(grainSize);
         
         if (endPos > fileLength)
             break;
         
         trigger(startPos, endPos);
+        grainsTriggered++;
+        
         currPos += gap * (0.8f + 0.4f * frandom());
     }
+
+    DBG("Triggered " << grainsTriggered << " grains");
 }
 
 void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
@@ -76,7 +85,7 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
 
     for (auto& grain : grains)
     {
-        if (!grain.active) continue;
+        if (!grain.active || !grain.envelope) continue; 
 
         int samplesRemaining = grain.endPos - grain.currPos;
         int samplesToProcess = std::min(numSamples, samplesRemaining);
@@ -90,7 +99,6 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
         grain.envelopeBuffer.setSize(1, samplesToProcess, false, false, true);
         float* envelopeData = grain.envelopeBuffer.getWritePointer(0);
         grain.envelope->process(envelopeData, static_cast<unsigned int>(samplesToProcess));
-
         for (int i = 0; i < samplesToProcess; i++)
         {
             if (grain.currPos >= fileLength)
@@ -117,6 +125,12 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
             grain.active = false;
         }
     }
+    
+    int activeGrains = 0;
+    for (auto& grain : grains) {
+        if (grain.active) activeGrains++;
+    }
+    DBG("Processing " << activeGrains << " active grains");
 }
 
 void GranSynth::setGrainEnv(float attack, float sustain, float release)
@@ -144,7 +158,7 @@ void GranSynth::setGrainAmp(float amplitude)
 
 void GranSynth::trigger(int startPos, int endPos)
 {
-    for (auto& grain : grains)
+   for (auto& grain : grains)
     {
         if (!grain.active)
         {
@@ -154,10 +168,13 @@ void GranSynth::trigger(int startPos, int endPos)
             grain.active = true;
             grain.amplitude = grainAmplitude;
             
-            grain.envelope->start();
-            break;
+            if (grain.envelope) {
+                DBG("Triggered grain [" << startPos << "-" << endPos << "]");
+                return;
+            }
         }
     }
+    DBG("No inactive grains available for triggering");
 }
 
 } // namespace DSP
