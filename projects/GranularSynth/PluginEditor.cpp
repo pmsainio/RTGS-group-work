@@ -9,7 +9,7 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
 {
     addAndMakeVisible(paramEditor);
 
-    addAndMakeVisible(rangeSlider);
+    //addAndMakeVisible(rangeSlider);
     rangeSlider.juce::Slider::setSliderStyle(juce::Slider::SliderStyle::TwoValueHorizontal);
     rangeSlider.setRange(0.0, 1.0); // desired range
     rangeSlider.setMinAndMaxValues(0.2, 0.8); // initial min/max values
@@ -27,7 +27,7 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
     loadButton.setColour(juce::TextButton::textColourOffId, juce::Colours::fuchsia);
 
     getLookAndFeel().setColour(juce::ResizableWindow::backgroundColourId, juce::Colours::black);
-    setSize(6 * 100, 6 * 100);
+    setSize(7 * 100, 7 * 100);
 }
 
 GrainAudioProcessorEditor::~GrainAudioProcessorEditor()

@@ -6,13 +6,15 @@
 #include <memory>
 
 static const std::vector<mrta::ParameterInfo> paramVector 
-{
-    { Param::ID::volume, Param::Name::volume, "", 0.1f, Param::Ranges::volumeMin, Param::Ranges::volumeMax, 0.01f, 0.3f },
-    { Param::ID::attack, Param::Name::attack, "ms", 5.f, Param::Ranges::attackMin, Param::Ranges::attackMax, 0.1f, 1.0f },
-    { Param::ID::release, Param::Name::release, "ms", 5.f, Param::Ranges::relMin, Param::Ranges::relMax, 0.1f, 1.0f },
-    { Param::ID::sustain, Param::Name::sustain, "ms", 0.01f, Param::Ranges::susMin, Param::Ranges::susMax, 0.1f, 1.0f },
+{   
+    // {id, name, units, default, min, max, incr, skew}
+    { Param::ID::volume, Param::Name::volume, "", 0.f, 0.f, 1.f, 0.01f, 0.3f },
     { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, 0.f, 1.f, 0.001f, 1.f },
-    { Param::ID::grainLen, Param::Name::grainLen, "Samples", 480.f, Param::Ranges::grainSizeMin, Param::Ranges::grainSizeMax, 1.f, 1.f }  
+    { Param::ID::grainLen, Param::Name::grainLen, "Samples", 480.f, 480.f, 480.f * 10.f, 1.f, 1.f },
+    { Param::ID::density, Param::Name::density, "Samples", 15.f, 15.f, 100.f, 1.f, 1.f },
+    { Param::ID::attack, Param::Name::attack, "ms", 5.f, 5.f, 25.f, 0.1f, 1.0f },
+    { Param::ID::release, Param::Name::release, "ms", 5.f, 5.f, 25.f, 0.1f, 1.0f },
+    { Param::ID::sustain, Param::Name::sustain, "", 0.1f, 0.1f, 1.f, 0.1f, 1.0f }
 };
 
 GrainAudioProcessor::GrainAudioProcessor()
@@ -31,22 +33,20 @@ GrainAudioProcessor::GrainAudioProcessor()
             if (voice) {
                 voice->setGrainAmp(value);
                 if (auto* granSynth = voice->getGranSynth()) {
-                    granSynth->setGrainAmp(value);
+                    voice->setLevel(value);
                 }
             }
         });
 
     paramManager.registerParameterCallback(Param::ID::attack,
-        [this](float value, bool /*force*/) {
-            if (voice) {
-                voice->setGrainAttack(value);
-                if (auto* granSynth = voice->getGranSynth()) {
-                    granSynth->setGrainEnv(value, 
-                                        voice->getGrainSustain(), 
-                                        voice->getGrainRelease());
-                }
+    [this](float value, bool /*force*/) {
+        if (voice) {
+            voice->setGrainAttack(value);
+            if (auto* granSynth = voice->getGranSynth()) {
+                granSynth->setGrainEnv(value, voice->getGrainSustain(), voice->getGrainRelease());
             }
-        });
+        }
+    });
 
     paramManager.registerParameterCallback(Param::ID::sustain,
         [this](float value, bool /*force*/) {
@@ -75,14 +75,20 @@ GrainAudioProcessor::GrainAudioProcessor()
     paramManager.registerParameterCallback(Param::ID::filePos,
         [this](float value, bool /*force*/) {
             if (voice) {
-                voice->setMinSize(value);
+                voice->setMinSize(value * 0.8f);
             }
         });
 
-    paramManager.registerParameterCallback(Param::ID::filePos,
+    paramManager.registerParameterCallback(Param::ID::density,
         [this](float value, bool /*force*/) {
-            float grainRelativePos = value * paramManager.getAPVTS().getRawParameterValue(Param::ID::grainLen)->load();
-            voice->setFilePosition(grainRelativePos);
+            if (voice) {
+                voice->setDensity(value);
+            }
+        });
+
+    paramManager.registerParameterCallback(Param::ID::grainLen,
+        [this](float value, bool /*force*/) {
+            voice->setMaxSize(value);
         });
 }
 

@@ -26,6 +26,8 @@ public:
     void setGrainRelease(float release) { grainRelease = release; }
     void setMinSize(float newMinSize);
     void setMaxSize(float newMaxSize);
+    void setDensity(float newDensity);
+    void setLevel(float newLevel);
 
     float getGrainAttack() const { return grainAttack; }
     float getGrainSustain() const { return grainSustain; }
@@ -45,15 +47,21 @@ private:
     float pitchRatio = 1.0f;
     float level = 0.0f;
     bool isPlaying = false;
-    
+
     // Grain parameters
     float grainAttack = 5.0f;
     float grainSustain = 50.0f;
     float grainRelease = 20.0f;
     float grainAmp = 1.0f;
 
+    bool noteHeld = false;
+    
+    float density = 10.0f;
     float minSize = 480.f;
     float maxSize = 3360.f;
+
+    double timeUntilNextGrain = 0.0;
+    double grainIntervalSamples = 0.0;
 
     float grainSize = 480.0f;
     float filePositionInSamples = 0.0f;

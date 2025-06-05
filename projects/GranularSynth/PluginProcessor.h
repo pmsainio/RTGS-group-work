@@ -13,10 +13,10 @@ namespace Param
         static const juce::String volume {"Volume"};
         static const juce::String attack  {"Attack Time"};
         static const juce::String sustain {"Sustain"};
-        static const juce::String release {"Release"};
-        static const juce::String filePos {"Position"};
-        static const juce::String grainLen {"Grain Length"};
-
+        static const juce::String release {"Release Time"};
+        static const juce::String filePos {"File Position"};
+        static const juce::String grainLen {"Grain Size"};
+        static const juce::String density {"Grain Density"};
     }
 
     namespace Name
@@ -27,22 +27,7 @@ namespace Param
         static const juce::String release {"Release"};
         static const juce::String filePos {"Position"};
         static const juce::String grainLen {"Grain Length"};
-    }
-
-    namespace Ranges
-    {
-        static constexpr float volumeMax { 1.f };
-        static constexpr float volumeMin { 0.f };
-        static constexpr float attackMin  { 5.f };
-        static constexpr float attackMax  { 25.f };
-        static constexpr float susMin  { 0.01f };
-        static constexpr float susMax  { 1.f };
-        static constexpr float relMin  { 5.f }; // Add offset
-        static constexpr float relMax  { 25.f }; // Add offset
-        static constexpr float filePosMin { 480.f };
-        static constexpr float filePosMax { 3360.f };
-        static constexpr float grainSizeMin { 480.f };
-        static constexpr float grainSizeMax { 3360.f };
+        static const juce::String density {"Grain Density"};
     }
     
 }

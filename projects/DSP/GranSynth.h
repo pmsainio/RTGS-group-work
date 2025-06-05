@@ -33,6 +33,8 @@ namespace DSP
             void processBlock(juce::AudioBuffer<float>& outputBuffer);
 
             void synthesize(float density, float minSize, float maxSize);
+            void setPitchRatio(float ratio) { pitchRatio = ratio; };
+            bool trigger(int startPos, int endPos, float pitchRatio);
 
             void setGrainEnv(float attack, float sustain, float release);
             void setGrainAmp(float amplitude);
@@ -46,11 +48,12 @@ namespace DSP
                 bool active = true; 
                 float amplitude = 0.f;
                 juce::AudioBuffer<float> envelopeBuffer;
-                
+                float currPosFloat = 0.f;
+                float pitchRatio = 0.f;
+
                 ActiveGrain() = default;
             };
 
-            void trigger(int startPos, int endPos);
             float frandom();
             double randomDuration(float minLength, float maxLength);
 
@@ -62,6 +65,7 @@ namespace DSP
             float grainSustain = 25.f;
             float grainAmplitude = 1.f;
             float nextGrainTime = 0.f;
+            float pitchRatio = 0.f;
 
             juce::AudioBuffer<float>* sampleBuffer = nullptr;
             std::vector<ActiveGrain> grains;
