@@ -76,7 +76,6 @@ void GrainAudioProcessorEditor::buttonClicked(juce::Button* button)
                 if (result.isEmpty())
                     return;
                 
-                // Get the local file path
                 juce::String path;
                 if (result.isLocalFile())
                 {
@@ -84,15 +83,12 @@ void GrainAudioProcessorEditor::buttonClicked(juce::Button* button)
                 }
                 else
                 {
-                    // Handle remote files if needed
                     DBG("Remote files not supported yet");
                     return;
                 }
                 
-                // Tell the processor to load this file
                 audioProcessor.readFile(path);
                 
-                // Optionally update the button text
                 loadButton.setButtonText(result.getFileName());
             });
     }
