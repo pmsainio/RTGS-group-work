@@ -58,13 +58,13 @@ void GrainAudioProcessorEditor::resized()
     auto bounds = getLocalBounds();
     
     // allocate space for the slider
-    auto sliderArea = bounds.removeFromBottom(50);
-    rangeSlider.setBounds(sliderArea.reduced(10));
+    //auto sliderArea = bounds.removeFromBottom(50);
+    //rangeSlider.setBounds(sliderArea.reduced(10));
 
     auto buttonArea = bounds.removeFromTop(40).reduced(10);
     loadButton.setBounds(buttonArea);
 
-    auto waveformArea = bounds.removeFromTop(getHeight() * 0.2f).reduced(10);
+    auto waveformArea = bounds.removeFromTop(getHeight() * 0.1f).reduced(10);
     
     // give the remaining space to the parameter editor
     paramEditor.setBounds(bounds);
