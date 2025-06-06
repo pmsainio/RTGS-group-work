@@ -24,7 +24,6 @@ void GrainSynthVoice::startNote(int midiNoteNumber, float velocity,
         
         granSynth->setBuffer(sampleBuffer);
         granSynth->setGrainEnv(grainAttack, grainSustain, grainRelease);
-        granSynth->setGrainAmp(0.1 * grainAmp * level);
         
         DBG("Triggering grains with size " << minSize << "-" << maxSize << " samples");
     }
@@ -107,14 +106,6 @@ void GrainSynthVoice::setGranSynth(DSP::GranSynth* newGranSynth)
     {
         granSynth->prepare(sampleRate);
     }
-}
-
-void GrainSynthVoice::setGrainParameters(float attackMs, float sustainMs, float releaseMs, float amplitude)
-{
-    grainAttack = attackMs;
-    grainSustain = sustainMs;
-    grainRelease = releaseMs;
-    grainAmp = amplitude;
 }
 
 void GrainSynthVoice::pitchWheelMoved(int) {}

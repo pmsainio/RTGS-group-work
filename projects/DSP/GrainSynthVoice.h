@@ -18,7 +18,6 @@ public:
     
     void setSampleBuffer(juce::AudioBuffer<float>* buffer);
     void setGranSynth(DSP::GranSynth* newGranSynth);
-    void setGrainParameters(float attackMs, float sustainMs, float releaseMs, float amplitude);
 
     void setGrainAmp(float amp) { grainAmp = amp; }
     void setGrainAttack(float attack) { grainAttack = attack; }
@@ -28,10 +27,6 @@ public:
     void setMaxSize(float newMaxSize);
     void setDensity(float newDensity);
     void setLevel(float newLevel);
-
-    float getGrainAttack() const { return grainAttack; }
-    float getGrainSustain() const { return grainSustain; }
-    float getGrainRelease() const { return grainRelease; }
 
     void setFilePosition(float posInSamples) { 
         filePositionInSamples = posInSamples; 
@@ -49,9 +44,9 @@ private:
     bool isPlaying = false;
 
     // Grain parameters
-    float grainAttack = 5.0f;
-    float grainSustain = 50.0f;
-    float grainRelease = 20.0f;
+    float grainAttack = 30.0f;
+    float grainSustain = 0.1f;
+    float grainRelease = 30.0f;
     float grainAmp = 1.0f;
 
     bool noteHeld = false;

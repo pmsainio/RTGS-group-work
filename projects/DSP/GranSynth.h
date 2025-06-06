@@ -37,7 +37,7 @@ namespace DSP
             bool trigger(int startPos, int endPos, float pitchRatio);
 
             void setGrainEnv(float attack, float sustain, float release);
-            void setGrainAmp(float amplitude);
+            void setGrainAmp(float amplitude) { grainSustain = amplitude; };
 
             int getActiveGrainCount() const;
 
@@ -62,9 +62,9 @@ namespace DSP
             double sampleRate {48000.0};
             int fileLength = 0;
 
-            float grainAttack = 5.f; 
-            float grainRelease = 5.f;
-            float grainSustain = 25.f;
+            float grainAttack = 10.f; 
+            float grainRelease = 10.f;
+            float grainSustain = 0.1f;
             float grainAmplitude = 1.f;
             float nextGrainTime = 0.f;
             float pitchRatio = 0.f;

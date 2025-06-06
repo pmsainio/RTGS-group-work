@@ -12,8 +12,8 @@ static const std::vector<mrta::ParameterInfo> paramVector
     { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, 0.f, 1.f, 0.001f, 1.f },
     { Param::ID::grainLen, Param::Name::grainLen, "Samples", 480.f, 480.f, 480.f * 10.f, 1.f, 1.f },
     { Param::ID::density, Param::Name::density, "Samples", 15.f, 15.f, 100.f, 1.f, 1.f },
-    { Param::ID::attack, Param::Name::attack, "ms", 10.f, 10.f, 50.f, 0.1f, 1.0f },
-    { Param::ID::release, Param::Name::release, "ms", 10.f, 10.f, 50.f, 0.1f, 1.0f },
+    { Param::ID::attack, Param::Name::attack, "ms", 5.f, 5.f, 25.f, 1.f, 1.0f },
+    { Param::ID::release, Param::Name::release, "ms", 5.f, 5.f, 25.f, 1.f, 1.0f },
     { Param::ID::sustain, Param::Name::sustain, "", 0.1f, 0.1f, 1.f, 0.1f, 1.0f }
 };
 
@@ -30,12 +30,7 @@ GrainAudioProcessor::GrainAudioProcessor()
     
     paramManager.registerParameterCallback(Param::ID::volume,
     [this](float value, bool) {
-        if (voice) {
-            voice->setGrainAmp(value);
-            voice->setLevel(value);
-            if (auto* gran = voice->getGranSynth())
-                gran->setGrainAmp(value);
-        }
+
     });
 
     paramManager.registerParameterCallback(Param::ID::attack,
@@ -47,13 +42,13 @@ GrainAudioProcessor::GrainAudioProcessor()
     paramManager.registerParameterCallback(Param::ID::sustain,
         [this](float value, bool) {
             if (voice)
-                voice->setGrainSustain(25.f + value);
+                voice->setGrainSustain(value);
         });
 
     paramManager.registerParameterCallback(Param::ID::release,
         [this](float value, bool) {
             if (voice)
-                voice->setGrainRelease(125.f + value);
+                voice->setGrainRelease(value);
         });
 
     paramManager.registerParameterCallback(Param::ID::filePos,

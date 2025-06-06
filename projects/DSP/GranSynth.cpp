@@ -84,20 +84,34 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
     }
 }
 
-
-
-
 void GranSynth::setGrainEnv(float attack, float sustain, float release)
 {
-    grainAttack = juce::jlimit(1.0f, 100.0f, attack);
-    grainSustain = juce::jlimit(1.0f, 1000.0f, sustain);
-    grainRelease = juce::jlimit(1.0f, 100.0f, release);
+    grainAttack = juce::jlimit(10.f, 100.0f, attack);
+    grainSustain = juce::jlimit(0.f, 1.f, sustain);
+    grainRelease = juce::jlimit(10.f, 100.0f, release);
 }
 
-void GranSynth::setGrainAmp(float amplitude)
+void GranSynth::synthesize(float density, float minSize, float maxSize)
 {
-    grainAmplitude = amplitude;
+    if (!sampleBuffer || fileLength <= 0)
+        return;
+
+    const int numGrains = static_cast<int>(density);
+    
+    for (int i = 0; i < numGrains; ++i)
+    {
+        float grainSize = minSize + frandom() * (maxSize - minSize);
+        int sizeSamples = static_cast<int>(grainSize);
+
+        sizeSamples = std::clamp(sizeSamples, 16, fileLength - 1);
+
+        int startPos = static_cast<int>(frandom() * (fileLength - sizeSamples));
+        int endPos = startPos + sizeSamples;
+
+        trigger(startPos, endPos, 1.0f); 
+    }
 }
+
 
 bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
 {
@@ -114,16 +128,39 @@ bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
             grain.active = true;
 
             float durationMs = 1000.0f * (endPos - startPos) / sampleRate;
+            
+            // User-specified envelope segments
+            float attackMs  = grainAttack;
+            float releaseMs = grainRelease;
+            float sustainMs = 0.5f; 
+
+            if (attackMs + releaseMs >= durationMs)
+            {
+                float segment = durationMs / 3.0f;
+                attackMs  = segment;
+                sustainMs = segment;
+                releaseMs = segment;
+            }
+            else
+            {
+                sustainMs = durationMs - (attackMs + releaseMs);
+            }
 
             if (grain.envelope)
             {
-                grain.envelope->setGrainAmplitude(grainAmplitude);
-                grain.envelope->setAttackTime(std::min(grainAttack, durationMs));
-                grain.envelope->setSustainTime(durationMs);
-                grain.envelope->setReleaseTime(std::min(grainRelease, durationMs));
+                grain.envelope->setGrainAmplitude(grainSustain);
+                grain.envelope->setAttackTime(attackMs);
+                grain.envelope->setSustainTime(sustainMs);
+                grain.envelope->setReleaseTime(releaseMs);
                 grain.envelope->prepare(sampleRate, 0);
                 grain.envelope->start();
             }
+
+            DBG("Attack:" << attackMs);
+            DBG("Release:" << releaseMs);
+            DBG("Sustain Amp:" << grainSustain);
+            DBG("Sustain Length:" << sustainMs);
+            DBG("Grain Size:" << durationMs);
 
             return true;
         }
