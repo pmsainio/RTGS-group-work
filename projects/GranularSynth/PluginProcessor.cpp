@@ -147,7 +147,7 @@ void GrainAudioProcessor::readFile(juce::String path)
     for (int i = 0; i < fileBuffer->getNumSamples(); i += 100) {
         rms += std::abs(fileBuffer->getSample(0, i));
     }
-    DBG("Approx RMS: " << (rms / (fileBuffer->getNumSamples()/100)));
+    DBG("Approx RMS: " << (rms / (fileBuffer->getNumSamples()/100.f)));
 }
 }
 

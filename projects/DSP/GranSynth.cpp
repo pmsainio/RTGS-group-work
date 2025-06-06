@@ -209,9 +209,11 @@ bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
                 grain.envelope->setSustainTime(grainDurationMs * 0.4f);
             }
 
-            return true;
+            return false;
         }
     }
+    
+    return true;
 }
 
 } // namespace DSP
