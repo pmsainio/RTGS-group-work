@@ -75,7 +75,7 @@ void GranSynth::synthesize(float density, float minSize, float maxSize)
 
         grainsTriggered++;
         
-        currPos += gap;
+        currPos += gap * (frandom() - 0.5f) * 2;
     }
 
     DBG("Triggered " << grainsTriggered << " grains");
