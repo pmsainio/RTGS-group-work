@@ -160,7 +160,7 @@ bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
             DBG("[Grain] Attack(ms): " << attackMs);
             DBG("[Grain] Sustain(ms): " << sustainMs);
             DBG("[Grain] Release(ms): " << releaseMs);
-            DBG("[Grain] Amplitude: " << grainAmplitude);
+            DBG("[Grain] Sustain: " << grainSustain);
             DBG("[Grain] Grain Size:" << durationMs);
 
             return true;
