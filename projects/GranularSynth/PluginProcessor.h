@@ -32,7 +32,7 @@ namespace Param
     
 }
 
-class GrainAudioProcessor : public juce::AudioProcessor
+class GrainAudioProcessor : public juce::AudioProcessor, public juce::ChangeBroadcaster
 {
     public: 
         GrainAudioProcessor();
@@ -52,6 +52,9 @@ class GrainAudioProcessor : public juce::AudioProcessor
         void setStateInformation(const void* data, int sizeInBytes) override;
 
         mrta::ParameterManager& getParamManager() { return paramManager; }
+
+        const juce::AudioBuffer<float>* getAudioBuffer() const { return fileBuffer.get(); }
+        void notifyWaveformChanged() { sendChangeMessage(); }
 
         //==============================================================================
         juce::AudioProcessorEditor* createEditor() override;
@@ -79,6 +82,8 @@ class GrainAudioProcessor : public juce::AudioProcessor
         
         juce::AudioFormatManager formatManager;
         std::unique_ptr<juce::AudioBuffer<float>> fileBuffer;
+
+        juce::ChangeBroadcaster changeBroadcaster;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainAudioProcessor)
 };

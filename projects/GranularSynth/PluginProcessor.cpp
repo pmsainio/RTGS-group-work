@@ -130,6 +130,7 @@ void GrainAudioProcessor::readFile(juce::String path)
         if (voice) {
             voice->setSampleBuffer(fileBuffer.get());
         }
+        notifyWaveformChanged();
 
         DBG("Audio Read:" + file.getFileName());
     }

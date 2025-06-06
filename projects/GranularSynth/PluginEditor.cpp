@@ -7,6 +7,7 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
     paramEditor(audioProcessor.getParamManager()),
     loadButton("Load Audio File")
 {
+    audioProcessor.addChangeListener(this);
     addAndMakeVisible(paramEditor);
 
     //addAndMakeVisible(rangeSlider);
@@ -32,12 +33,24 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
 
 GrainAudioProcessorEditor::~GrainAudioProcessorEditor()
 {
+    audioProcessor.removeChangeListener(this);
 }
 
 //==============================================================================
 void GrainAudioProcessorEditor::paint(juce::Graphics& g)
 {
      g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+
+     if (fileLoaded)
+     {
+        auto waveformArea = getLocalBounds().removeFromTop(getHeight() * 0.2f).reduced(10);
+        g.setColour(juce::Colours::fuchsia.withAlpha(0.8f));
+        g.strokePath(waveformPath, juce::PathStrokeType(2.0f));
+        
+        // Draw border
+        g.setColour(juce::Colours::white.withAlpha(0.3f));
+        g.drawRect(waveformArea, 1);
+     }
 }
 
 void GrainAudioProcessorEditor::resized()
@@ -50,9 +63,16 @@ void GrainAudioProcessorEditor::resized()
 
     auto buttonArea = bounds.removeFromTop(40).reduced(10);
     loadButton.setBounds(buttonArea);
+
+    auto waveformArea = bounds.removeFromTop(getHeight() * 0.2f).reduced(10);
     
     // give the remaining space to the parameter editor
     paramEditor.setBounds(bounds);
+
+    if (fileLoaded)
+    {
+        generateWaveform();
+    }
 }
 
 void GrainAudioProcessorEditor::buttonClicked(juce::Button* button)
@@ -90,6 +110,56 @@ void GrainAudioProcessorEditor::buttonClicked(juce::Button* button)
                 audioProcessor.readFile(path);
                 
                 loadButton.setButtonText(result.getFileName());
+                fileLoaded = audioProcessor.getAudioBuffer() != nullptr;
+                generateWaveform();
+                repaint();
             });
+    }
+}
+
+void GrainAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
+{
+    if (source == &audioProcessor)
+    {
+        fileLoaded = audioProcessor.getAudioBuffer() != nullptr;
+        generateWaveform();
+        repaint();
+    }
+}
+
+void GrainAudioProcessorEditor::generateWaveform()
+{
+    waveformPath.clear();
+    
+    const auto* buffer = audioProcessor.getAudioBuffer();
+    if (buffer == nullptr || buffer->getNumSamples() == 0)
+        return;
+    
+    const float* channelData = buffer->getReadPointer(0);
+    const int numSamples = buffer->getNumSamples();
+    const int width = getWidth();
+    
+    // Get the waveform display area bounds
+    auto waveformArea = getLocalBounds().removeFromTop(getHeight() * 0.2f).reduced(10);
+    const int displayWidth = waveformArea.getWidth();
+    
+    // To avoid drawing too many points, we'll skip samples when zoomed out
+    const int step = juce::jmax(1, numSamples / displayWidth);
+    
+    waveformPath.startNewSubPath(waveformArea.getX(), waveformArea.getCentreY());
+    
+    for (int x = 0; x < displayWidth; ++x)
+    {
+        const int sampleIndex = (int)((x / (float)displayWidth) * numSamples);
+        const float sample = channelData[sampleIndex];
+        
+        const float y = juce::jmap(sample, -1.0f, 1.0f, 
+                                 (float)waveformArea.getBottom(), 
+                                 (float)waveformArea.getY());
+        
+        if (x == 0)
+            waveformPath.startNewSubPath(waveformArea.getX() + (float)x, y);
+        else
+            waveformPath.lineTo(waveformArea.getX() + (float)x, y);
     }
 }
