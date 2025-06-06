@@ -39,6 +39,8 @@ namespace DSP
             void setGrainEnv(float attack, float sustain, float release);
             void setGrainAmp(float amplitude);
 
+            int getActiveGrainCount() const;
+
         private:
             struct ActiveGrain {
                 std::unique_ptr<GrainEnvelope> envelope { std::make_unique<GrainEnvelope>() }; 
