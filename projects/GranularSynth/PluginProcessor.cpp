@@ -8,7 +8,6 @@
 static const std::vector<mrta::ParameterInfo> paramVector 
 {   
     // {id, name, units, default, min, max, incr, skew}
-    { Param::ID::volume, Param::Name::volume, "", 0.f, 0.f, 1.f, 0.01f, 0.3f },
     { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, 0.f, 1.f, 0.001f, 1.f },
     { Param::ID::grainLen, Param::Name::grainLen, "Samples", 480.f, 480.f, 480.f * 10.f, 1.f, 1.f },
     { Param::ID::density, Param::Name::density, "Samples", 15.f, 15.f, 100.f, 1.f, 1.f },
@@ -27,11 +26,6 @@ GrainAudioProcessor::GrainAudioProcessor()
     synth.addSound(new GrainSynthSound());
     synth.addVoice(voice);
     voice->setGranSynth(granSynth.get()); 
-    
-    paramManager.registerParameterCallback(Param::ID::volume,
-    [this](float value, bool) {
-
-    });
 
     paramManager.registerParameterCallback(Param::ID::attack,
         [this](float value, bool) {
@@ -54,7 +48,7 @@ GrainAudioProcessor::GrainAudioProcessor()
     paramManager.registerParameterCallback(Param::ID::filePos,
         [this](float value, bool) {
             if (voice)
-                voice->setFilePosition(value);
+                voice->setFilePos(value);
         });
 
     paramManager.registerParameterCallback(Param::ID::grainLen,

@@ -23,15 +23,18 @@ public:
     void setGrainAttack(float attack) { grainAttack = attack; }
     void setGrainSustain(float sustain) { grainSustain = sustain; }
     void setGrainRelease(float release) { grainRelease = release; }
-    void setMinSize(float newMinSize);
     void setMaxSize(float newMaxSize);
     void setDensity(float newDensity);
     void setLevel(float newLevel);
 
-    void setFilePosition(float posInSamples) { 
-        filePositionInSamples = posInSamples; 
+    void setFilePos(float value)
+    {
+        if (sampleBuffer && sampleBuffer->getNumSamples() > 0)
+        {
+            int length = sampleBuffer->getNumSamples();
+            filePositionInSamples = static_cast<int>(std::clamp(value, 0.0f, 1.0f) * length);
+        }
     }
-    
     
     DSP::GranSynth* getGranSynth() const { return granSynth; }
 
@@ -59,7 +62,7 @@ private:
     double grainIntervalSamples = 0.0;
 
     float grainSize = 480.0f;
-    float filePositionInSamples = 0.0f;
+    int filePositionInSamples = 0.0f;
 };
 
 class GrainSynthSound : public juce::SynthesiserSound

@@ -10,7 +10,6 @@ namespace Param
 {
     namespace ID
     {
-        static const juce::String volume {"Volume"};
         static const juce::String attack  {"Attack Time"};
         static const juce::String sustain {"Sustain Level"};
         static const juce::String release {"Release Time"};
@@ -21,7 +20,6 @@ namespace Param
 
     namespace Name
     {
-        static const juce::String volume {"Volume"};
         static const juce::String attack  {"Attack Time"};
         static const juce::String sustain {"Sustain Level"};
         static const juce::String release {"Release Time"};
