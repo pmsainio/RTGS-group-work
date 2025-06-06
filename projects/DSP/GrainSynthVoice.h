@@ -27,14 +27,7 @@ public:
     void setDensity(float newDensity);
     void setLevel(float newLevel);
 
-    void setFilePos(float value)
-    {
-        if (sampleBuffer && sampleBuffer->getNumSamples() > 0)
-        {
-            int length = sampleBuffer->getNumSamples();
-            filePositionInSamples = static_cast<int>(std::clamp(value, 0.0f, 1.0f) * length);
-        }
-    }
+    void setFilePos(float value);
     
     DSP::GranSynth* getGranSynth() const { return granSynth; }
 

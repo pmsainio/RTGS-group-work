@@ -86,9 +86,9 @@ void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
 
 void GranSynth::setGrainEnv(float attack, float sustain, float release)
 {
-    grainAttack = juce::jlimit(10.f, 100.0f, attack);
-    grainSustain = juce::jlimit(0.f, 1.f, sustain);
-    grainRelease = juce::jlimit(10.f, 100.0f, release);
+    grainAttack = attack;
+    grainSustain = sustain;
+    grainRelease = release;
 }
 
 void GranSynth::synthesize(float density, float minSize, float maxSize)
@@ -128,11 +128,10 @@ bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
             grain.active = true;
 
             float durationMs = 1000.0f * (endPos - startPos) / sampleRate;
-            
-            // User-specified envelope segments
+
             float attackMs  = grainAttack;
             float releaseMs = grainRelease;
-            float sustainMs = 0.5f; 
+            float sustainMs;
 
             if (attackMs + releaseMs >= durationMs)
             {
@@ -140,6 +139,7 @@ bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
                 attackMs  = segment;
                 sustainMs = segment;
                 releaseMs = segment;
+                DBG("[Grain] Fallback to thirds: duration too short for custom env");
             }
             else
             {
@@ -156,11 +156,12 @@ bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
                 grain.envelope->start();
             }
 
-            DBG("Attack:" << attackMs);
-            DBG("Release:" << releaseMs);
-            DBG("Sustain Amp:" << grainSustain);
-            DBG("Sustain Length:" << sustainMs);
-            DBG("Grain Size:" << durationMs);
+            DBG("[Grain] Start: " << startPos << ", End: " << endPos << ", Duration(ms): " << durationMs);
+            DBG("[Grain] Attack(ms): " << attackMs);
+            DBG("[Grain] Sustain(ms): " << sustainMs);
+            DBG("[Grain] Release(ms): " << releaseMs);
+            DBG("[Grain] Amplitude: " << grainAmplitude);
+            DBG("[Grain] Grain Size:" << durationMs);
 
             return true;
         }
@@ -168,6 +169,7 @@ bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
 
     return false;
 }
+
 
 int GranSynth::getActiveGrainCount() const
 {

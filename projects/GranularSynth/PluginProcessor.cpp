@@ -9,17 +9,16 @@ static const std::vector<mrta::ParameterInfo> paramVector
 {   
     // {id, name, units, default, min, max, incr, skew}
     { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, 0.f, 1.f, 0.001f, 1.f },
-    { Param::ID::grainLen, Param::Name::grainLen, "Samples", 480.f, 480.f, 480.f * 10.f, 1.f, 1.f },
+    { Param::ID::grainLen, Param::Name::grainLen, "ms", 30.f, 30.f, 70.f, 1.f, 1.f },
     { Param::ID::density, Param::Name::density, "Samples", 15.f, 15.f, 100.f, 1.f, 1.f },
-    { Param::ID::attack, Param::Name::attack, "ms", 5.f, 5.f, 25.f, 1.f, 1.0f },
-    { Param::ID::release, Param::Name::release, "ms", 5.f, 5.f, 25.f, 1.f, 1.0f },
+    { Param::ID::attack, Param::Name::attack, "ms", 5.f, 5.f, 100.f, 1.f, 1.0f },
+    { Param::ID::release, Param::Name::release, "ms", 5.f, 5.f, 100.f, 1.f, 1.0f },
     { Param::ID::sustain, Param::Name::sustain, "", 0.1f, 0.1f, 1.f, 0.1f, 1.0f }
 };
 
 GrainAudioProcessor::GrainAudioProcessor()
     : paramManager(*this, "GranularSynth", paramVector)
 {
-
     formatManager.registerBasicFormats();
     granSynth = std::make_unique<DSP::GranSynth>(sampleRate); 
     voice = new GrainSynthVoice();
@@ -28,39 +27,39 @@ GrainAudioProcessor::GrainAudioProcessor()
     voice->setGranSynth(granSynth.get()); 
 
     paramManager.registerParameterCallback(Param::ID::attack,
-        [this](float value, bool) {
-            if (voice)
-                voice->setGrainAttack(value);
+        [this](float value, bool /*force*/) {
+            voice->setGrainAttack(value);
+            DBG("[Knob] Attack" << value);
         });
 
     paramManager.registerParameterCallback(Param::ID::sustain,
-        [this](float value, bool) {
-            if (voice)
-                voice->setGrainSustain(value);
+        [this](float value, bool /*force*/) {
+            voice->setGrainSustain(value);
+            DBG("[Knob] Sustain" << value);
         });
 
     paramManager.registerParameterCallback(Param::ID::release,
-        [this](float value, bool) {
-            if (voice)
+        [this](float value, bool /*force*/) {
                 voice->setGrainRelease(value);
+                DBG("[Knob] Release" << value);
         });
 
     paramManager.registerParameterCallback(Param::ID::filePos,
-        [this](float value, bool) {
-            if (voice)
+        [this](float value, bool /*force*/) {
                 voice->setFilePos(value);
+                DBG("[Knob] FilePos" << value);
         });
 
     paramManager.registerParameterCallback(Param::ID::grainLen,
-        [this](float value, bool) {
-            if (voice)
+        [this](float value, bool /*force*/) {
                 voice->setMaxSize(value);
+                DBG("[Knob] MaxSize" << value);
         });
 
     paramManager.registerParameterCallback(Param::ID::density,
-        [this](float value, bool) {
-            if (voice)
+        [this](float value, bool /*force*/) {
                 voice->setDensity(value);
+            DBG("[Knob] Density" << value);
         });
 
 }
@@ -77,6 +76,7 @@ void GrainAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
         granSynth->prepare(sampleRate);
     }
 
+    paramManager.updateParameters(true);
     // Initialize the synth
     synth.setCurrentPlaybackSampleRate(sampleRate);
 
@@ -140,6 +140,7 @@ void GrainAudioProcessor::checkForRestoredPath()
 void GrainAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+    paramManager.updateParameters();
     buffer.clear();
 
     const int numSamples = buffer.getNumSamples();
@@ -158,12 +159,12 @@ void GrainAudioProcessor::releaseResources()
 
 void GrainAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-
+    paramManager.getStateInformation(destData);
 }
 
 void GrainAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-
+    paramManager.setStateInformation(data, sizeInBytes);
 }
 
 //==============================================================================

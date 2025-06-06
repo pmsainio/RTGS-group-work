@@ -19,7 +19,9 @@ void GrainSynthVoice::startNote(int midiNoteNumber, float velocity,
     {
         grainIntervalSamples = sampleRate / density;
         timeUntilNextGrain = 0.0;
-
+        DBG("[Grain] Attack" << grainAttack << "Release" << grainRelease << "Sustain" << grainSustain);
+        granSynth->setGrainEnv(grainAttack, grainSustain, grainRelease);
+        granSynth->setGrainAmp(grainAmp);
         granSynth->setBuffer(sampleBuffer);
     }
 }
@@ -36,7 +38,7 @@ void GrainSynthVoice::stopNote(float, bool allowTailOff)
 
 void GrainSynthVoice::setMaxSize(float value)
 {
-    grainSize = static_cast<int>(value * sampleRate * 0.001f); // convert from ms to samples
+    grainSize = value; // value in milliseconds
 }
 
 void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
@@ -52,27 +54,25 @@ void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
 
     for (int i = 0; i < numSamples; ++i)
     {
-        if (noteHeld && timeUntilNextGrain <= 0.0)
+        if (noteHeld && timeUntilNextGrain <= 0.0f)
         {
-            const int minGrainSizeSamples = static_cast<int>(sampleRate * 0.030f);
-            int maxGrainSizeSamples = static_cast<int>(std::max(grainSize, 30.0f) * sampleRate * 0.001f);
-            int actualGrainSize = minGrainSizeSamples;
-            if (maxGrainSizeSamples > minGrainSizeSamples)
-            {
-                float randFactor = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-                actualGrainSize = minGrainSizeSamples + static_cast<int>(
-                    randFactor * (maxGrainSizeSamples - minGrainSizeSamples));
-            }
+            float randMs = static_cast<float>(rand()) / RAND_MAX * grainSize;
+            int actualGrainSizeSamples = static_cast<int>(randMs * sampleRate * 0.001f);
 
-            int maxStart = sampleBuffer->getNumSamples() - actualGrainSize;
-            int startPos = std::min(filePositionInSamples, maxStart);
-            int endPos = startPos + actualGrainSize;
+            int maxStart = sampleBuffer->getNumSamples() - actualGrainSizeSamples;
+            int startPos = std::clamp(static_cast<int>(filePositionInSamples), 0, maxStart);
+            DBG("[Grain] FilePos" << filePositionInSamples);
+            int endPos = startPos + actualGrainSizeSamples;
+
+            DBG("[Grain] Start Pos: " << startPos);
+            DBG("[Grain] End Pos: " << endPos);
+            DBG("[Grain] Size (ms): " << randMs);
 
             if (granSynth->trigger(startPos, endPos, pitchRatio))
                 timeUntilNextGrain += grainIntervalSamples;
         }
 
-        timeUntilNextGrain -= 1.0;
+        timeUntilNextGrain -= 1.0f;
     }
 
     granSynth->processBlock(grainBuffer);
@@ -92,6 +92,7 @@ void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
 void GrainSynthVoice::setDensity(float newdensity)
 {
     density = newdensity;
+    DBG("[Grain] Density" << density);
 }
 
 void GrainSynthVoice::setSampleBuffer(juce::AudioBuffer<float>* buffer)
@@ -104,6 +105,15 @@ void GrainSynthVoice::setGranSynth(DSP::GranSynth* newGranSynth)
     granSynth = newGranSynth;
     if (granSynth)
         granSynth->prepare(sampleRate);
+}
+
+void GrainSynthVoice::setFilePos(float value)
+{
+        if (sampleBuffer && sampleBuffer->getNumSamples() > 0)
+        {
+            int length = sampleBuffer->getNumSamples();
+            filePositionInSamples = static_cast<int>(std::clamp(value, 0.0f, 1.0f) * length);
+        }
 }
 
 void GrainSynthVoice::pitchWheelMoved(int) {}
