@@ -12,7 +12,7 @@ namespace Param
     {
         static const juce::String volume {"Volume"};
         static const juce::String attack  {"Attack Time"};
-        static const juce::String sustain {"Sustain"};
+        static const juce::String sustain {"Sustain Level"};
         static const juce::String release {"Release Time"};
         static const juce::String filePos {"File Position"};
         static const juce::String grainLen {"Grain Size"};
@@ -23,8 +23,8 @@ namespace Param
     {
         static const juce::String volume {"Volume"};
         static const juce::String attack  {"Attack Time"};
-        static const juce::String sustain {"Sustain"};
-        static const juce::String release {"Release"};
+        static const juce::String sustain {"Sustain Level"};
+        static const juce::String release {"Release Time"};
         static const juce::String filePos {"Position"};
         static const juce::String grainLen {"Grain Length"};
         static const juce::String density {"Grain Density"};
