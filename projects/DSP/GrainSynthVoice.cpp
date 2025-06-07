@@ -56,7 +56,8 @@ void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
     {
         if (noteHeld && timeUntilNextGrain <= 0.0f)
         {
-            float randMs = static_cast<float>(rand()) / RAND_MAX * 100;
+            float minMs = grainSize * 0.30f;
+            float randMs = minMs + static_cast<float>(rand()) / RAND_MAX * grainSize;
             int actualGrainSizeSamples = grainSize + static_cast<int>(randMs * sampleRate * 0.001f);
 
             int maxStart = sampleBuffer->getNumSamples() - actualGrainSizeSamples;
