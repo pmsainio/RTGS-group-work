@@ -91,27 +91,6 @@ void GranSynth::setGrainEnv(float attack, float sustain, float release)
     grainRelease = release;
 }
 
-void GranSynth::synthesize(float density, float minSize, float maxSize)
-{
-    if (!sampleBuffer || fileLength <= 0)
-        return;
-
-    const int numGrains = static_cast<int>(density);
-    
-    for (int i = 0; i < numGrains; ++i)
-    {
-        float grainSize = minSize + frandom() * (maxSize - minSize);
-        int sizeSamples = static_cast<int>(grainSize);
-
-        sizeSamples = std::clamp(sizeSamples, 16, fileLength - 1);
-
-        int startPos = static_cast<int>(frandom() * (fileLength - sizeSamples));
-        int endPos = startPos + sizeSamples;
-
-        trigger(startPos, endPos, 1.0f); 
-    }
-}
-
 bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
 {
     for (auto& grain : grains)

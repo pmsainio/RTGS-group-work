@@ -39,11 +39,9 @@ namespace DSP
             which is called in the blockprocess method of GrainSynthVoice */
             void processBlock(juce::AudioBuffer<float>& outputBuffer);
 
-            /* 1. Synthesize "makes the grains" based on the parameters given to it. 
-               2. Trigger only gives the PARAMS to each grain, does nothing with synthesis, it is only telling synthesize 
+            /* 1. Trigger only gives the PARAMS to each grain, does nothing with synthesis, it is only telling synthesize 
                   that a grain has been requested. 
                3. PitchRatio is set based on the note pressed. */
-            void synthesize(float density, float minSize, float maxSize);
             void setPitchRatio(float ratio) { pitchRatio = ratio; };
             bool trigger(int startPos, int endPos, float pitchRatio);
 

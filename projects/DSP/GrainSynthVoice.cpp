@@ -45,6 +45,8 @@ void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
     juce::AudioBuffer<float> grainBuffer(outputBuffer.getNumChannels(), numSamples);
     grainBuffer.clear();
 
+    // GRAIN SYNTHESIS ACTUALLY HAPPENS HERE
+
     for (int i = 0; i < numSamples; ++i)
     {
         if (noteHeld && timeUntilNextGrain <= 0.0f)
