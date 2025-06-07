@@ -13,11 +13,6 @@ GranSynth::GranSynth(double sampleRate) : sampleRate(sampleRate)
 
 GranSynth::~GranSynth() = default;
 
-float GranSynth::frandom()
-{
-    return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-}
-
 void GranSynth::prepare(double newSampleRate)
 {
     sampleRate = newSampleRate;
@@ -29,6 +24,11 @@ void GranSynth::setBuffer(juce::AudioBuffer<float>* buffer)
 {
     sampleBuffer = buffer;
     fileLength = buffer ? buffer->getNumSamples() : 0;
+}
+
+float GranSynth::frandom()
+{
+    return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 }
 
 void GranSynth::processBlock(juce::AudioBuffer<float>& outputBuffer)
@@ -112,7 +112,6 @@ void GranSynth::synthesize(float density, float minSize, float maxSize)
     }
 }
 
-
 bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
 {
     for (auto& grain : grains)
@@ -169,7 +168,6 @@ bool GranSynth::trigger(int startPos, int endPos, float pitchRatio)
 
     return false;
 }
-
 
 int GranSynth::getActiveGrainCount() const
 {

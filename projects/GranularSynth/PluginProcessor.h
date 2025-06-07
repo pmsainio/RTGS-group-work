@@ -1,11 +1,11 @@
 #pragma once 
 
 #include <JuceHeader.h>
-#include "../DSP/GrainEnvelope.h"
 #include "../DSP/GrainSynthVoice.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_formats/juce_audio_formats.h"
 
+// Param Namespace for Knob Registration
 namespace Param 
 {
     namespace ID
@@ -73,7 +73,6 @@ class GrainAudioProcessor : public juce::AudioProcessor, public juce::ChangeBroa
         double sampleRate;
         mrta::ParameterManager paramManager;
         
-        DSP::GrainEnvelope env;
         juce::Synthesiser synth;
         GrainSynthVoice* voice { nullptr };
         std::unique_ptr<DSP::GranSynth> granSynth;

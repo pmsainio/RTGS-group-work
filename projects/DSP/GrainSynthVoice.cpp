@@ -19,9 +19,7 @@ void GrainSynthVoice::startNote(int midiNoteNumber, float velocity,
     {
         grainIntervalSamples = sampleRate / density;
         timeUntilNextGrain = 0.0;
-        DBG("[Grain] Attack" << grainAttack << "Release" << grainRelease << "Sustain" << grainSustain);
         granSynth->setGrainEnv(grainAttack, grainSustain, grainRelease);
-        granSynth->setGrainAmp(grainAmp);
         granSynth->setBuffer(sampleBuffer);
     }
 }
@@ -34,11 +32,6 @@ void GrainSynthVoice::stopNote(float, bool allowTailOff)
         isPlaying = false;
         clearCurrentNote();
     }
-}
-
-void GrainSynthVoice::setMaxSize(float value)
-{
-    grainSize = value; // value in milliseconds
 }
 
 void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
@@ -62,9 +55,11 @@ void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
 
             int maxStart = sampleBuffer->getNumSamples() - actualGrainSizeSamples;
             int startPos = std::clamp(static_cast<int>(filePositionInSamples), 0, maxStart);
-            DBG("[Grain] FilePos" << filePositionInSamples);
             int endPos = startPos + actualGrainSizeSamples;
 
+            // These are not to be confused with the knob values. Post calculations values are dbugged here. 
+            DBG("[Grain PARAM CALCULATION]\n");
+            DBG("[Grain] FilePos: " << filePositionInSamples);
             DBG("[Grain] Start Pos: " << startPos);
             DBG("[Grain] End Pos: " << endPos);
             DBG("[Grain] Size (ms): " << randMs);
@@ -93,7 +88,22 @@ void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
 void GrainSynthVoice::setDensity(float newdensity)
 {
     density = newdensity;
-    DBG("[Grain] Density" << density);
+    DBG("[Grain] Density KnobValue: " << density);
+}
+
+void GrainSynthVoice::setMaxSize(float value)
+{
+    grainSize = value; 
+    DBG("[Grain] GrainSize KnobValue (ms): " << density);
+}
+
+void GrainSynthVoice::setFilePos(float value)
+{
+        if (sampleBuffer && sampleBuffer->getNumSamples() > 0)
+        {
+            int length = sampleBuffer->getNumSamples();
+            filePositionInSamples = static_cast<int>(std::clamp(value, 0.0f, 1.0f) * length);
+        }
 }
 
 void GrainSynthVoice::setSampleBuffer(juce::AudioBuffer<float>* buffer)
@@ -106,15 +116,6 @@ void GrainSynthVoice::setGranSynth(DSP::GranSynth* newGranSynth)
     granSynth = newGranSynth;
     if (granSynth)
         granSynth->prepare(sampleRate);
-}
-
-void GrainSynthVoice::setFilePos(float value)
-{
-        if (sampleBuffer && sampleBuffer->getNumSamples() > 0)
-        {
-            int length = sampleBuffer->getNumSamples();
-            filePositionInSamples = static_cast<int>(std::clamp(value, 0.0f, 1.0f) * length);
-        }
 }
 
 void GrainSynthVoice::pitchWheelMoved(int) {}

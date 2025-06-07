@@ -7,7 +7,7 @@
 
 static const std::vector<mrta::ParameterInfo> paramVector 
 {   
-    // {id, name, units, default, min, max, incr, skew}
+    // {ID, Name, Units, Default, Min, Max, Incr, Skew}
     { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, 0.f, 1.f, 0.001f, 1.f },
     { Param::ID::grainLen, Param::Name::grainLen, "ms", 30.f, 30.f, 200.f, 1.f, 1.f },
     { Param::ID::density, Param::Name::density, "Samples", 1.f, 1.f, 20.f, 1.f, 1.f },
@@ -18,7 +18,9 @@ static const std::vector<mrta::ParameterInfo> paramVector
 
 GrainAudioProcessor::GrainAudioProcessor()
     : paramManager(*this, "GranularSynth", paramVector)
-{
+{   
+
+    // Register all audio formats and make new object for GrainSynthVoice and pass the object reference to GranSynth
     formatManager.registerBasicFormats();
     granSynth = std::make_unique<DSP::GranSynth>(sampleRate); 
     voice = new GrainSynthVoice();
@@ -26,40 +28,36 @@ GrainAudioProcessor::GrainAudioProcessor()
     synth.addVoice(voice);
     voice->setGranSynth(granSynth.get()); 
 
+    // Param Read.
     paramManager.registerParameterCallback(Param::ID::attack,
         [this](float value, bool /*force*/) {
             voice->setGrainAttack(value);
-            DBG("[Knob] Attack" << value);
         });
 
     paramManager.registerParameterCallback(Param::ID::sustain,
         [this](float value, bool /*force*/) {
             voice->setGrainSustain(value);
-            DBG("[Knob] Sustain" << value);
         });
 
     paramManager.registerParameterCallback(Param::ID::release,
         [this](float value, bool /*force*/) {
-                voice->setGrainRelease(value);
-                DBG("[Knob] Release" << value);
+            voice->setGrainRelease(value);
         });
 
     paramManager.registerParameterCallback(Param::ID::filePos,
         [this](float value, bool /*force*/) {
-                voice->setFilePos(value);
-                DBG("[Knob] FilePos" << value);
+            voice->setFilePos(value);
         });
 
     paramManager.registerParameterCallback(Param::ID::grainLen,
         [this](float value, bool /*force*/) {
-                voice->setMaxSize(value);
-                DBG("[Knob] MaxSize" << value);
+            voice->setMaxSize(value);
+               
         });
 
     paramManager.registerParameterCallback(Param::ID::density,
         [this](float value, bool /*force*/) {
-                voice->setDensity(value);
-            DBG("[Knob] Density" << value);
+            voice->setDensity(value);
         });
 
 }
@@ -72,11 +70,13 @@ void GrainAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     this->sampleRate = sampleRate; 
 
+    // Checks object exists before preparing the GranSynth class. 
     if (granSynth) {
         granSynth->prepare(sampleRate);
     }
 
     paramManager.updateParameters(true);
+
     // Initialize the synth
     synth.setCurrentPlaybackSampleRate(sampleRate);
 
@@ -85,6 +85,8 @@ void GrainAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 
 void GrainAudioProcessor::readFile(juce::String path)
 {   
+    // File Handling. Loads file and does some basic error checking to ensure that the file exists. 
+
     juce::File file(path);
     DBG("Trying to load file: " << path << "\n");
     if (!file.existsAsFile())
@@ -116,7 +118,7 @@ void GrainAudioProcessor::readFile(juce::String path)
     DBG("Buffer created - Channels: " << fileBuffer->getNumChannels() 
         << ", Samples: " << fileBuffer->getNumSamples());
         
-    // Quick content check
+    // Quick content check and level check. 
     float rms = 0;
     for (int i = 0; i < fileBuffer->getNumSamples(); i += 100) {
         rms += std::abs(fileBuffer->getSample(0, i));
@@ -126,7 +128,8 @@ void GrainAudioProcessor::readFile(juce::String path)
 }
 
 void GrainAudioProcessor::checkForRestoredPath()
-{
+{   
+    // This function basically checks if there is a restored path, barely ever gets called.
     juce::String path;
     path = restoredPath; 
     if (path.isNotEmpty())
