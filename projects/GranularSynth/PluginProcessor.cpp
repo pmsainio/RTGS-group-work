@@ -10,7 +10,7 @@ static const std::vector<mrta::ParameterInfo> paramVector
     // {ID, Name, Units, Default, Min, Max, Incr, Skew}
     { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, 0.f, 1.f, 0.001f, 1.f },
     { Param::ID::grainLen, Param::Name::grainLen, "ms", 30.f, 30.f, 200.f, 1.f, 1.f },
-    { Param::ID::density, Param::Name::density, "Samples", 1.f, 1.f, 20.f, 1.f, 1.f },
+    { Param::ID::density, Param::Name::density, "Samples", 5.f, 5.f, 20.f, 1.f, 1.f },
     { Param::ID::attack, Param::Name::attack, "ms", 5.f, 5.f, 100.f, 1.f, 1.0f },
     { Param::ID::release, Param::Name::release, "ms", 5.f, 5.f, 100.f, 1.f, 1.0f },
     { Param::ID::sustain, Param::Name::sustain, "", 0.1f, 0.1f, 1.f, 0.1f, 1.0f }
