@@ -51,10 +51,13 @@ void GrainSynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer,
     {
         if (noteHeld && timeUntilNextGrain <= 0.0f)
         {
+            // Calculate grain size and position
             float randMs = minGrainSize + (maxGrainSize - minGrainSize) * static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
             int actualGrainSizeSamples = static_cast<int>(randMs * sampleRate * 0.001f);
 
             int maxStart = sampleBuffer->getNumSamples() - actualGrainSizeSamples;
+            int filePositionOffset = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 0.5f) * 2 * actualGrainSizeSamples;
+            filePositionInSamples += filePositionOffset;
             int startPos = std::clamp(static_cast<int>(filePositionInSamples), 0, maxStart);
             int endPos = startPos + actualGrainSizeSamples;
 
@@ -94,8 +97,14 @@ void GrainSynthVoice::setDensity(float newdensity)
 
 void GrainSynthVoice::setMaxSize(float value)
 {
-    grainSize = value; 
-    DBG("[Grain] GrainSize KnobValue (ms): " << density);
+    maxGrainSize = value; 
+    DBG("[Grain] GrainSize KnobValue (ms): " << maxGrainSize);
+}
+
+void GrainSynthVoice::setMinSize(float value)
+{
+    minGrainSize = value; 
+    DBG("[Grain] GrainSize KnobValue (ms): " << minGrainSize);
 }
 
 void GrainSynthVoice::setFilePos(float value)
