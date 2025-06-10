@@ -10,10 +10,10 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
     audioProcessor.addChangeListener(this);
     addAndMakeVisible(paramEditor);
 
-    //addAndMakeVisible(rangeSlider);
+    addAndMakeVisible(rangeSlider);
     rangeSlider.juce::Slider::setSliderStyle(juce::Slider::SliderStyle::TwoValueHorizontal);
-    rangeSlider.setRange(0.0, 1.0); // desired range
-    rangeSlider.setMinAndMaxValues(0.2, 0.8); // initial min/max values
+    rangeSlider.setRange(30, 1000); // desired range
+    rangeSlider.setMinAndMaxValues(30, 130); // initial min/max values
     
     rangeSlider.onValueChange = [this] {
         // handle value changes here
@@ -58,8 +58,8 @@ void GrainAudioProcessorEditor::resized()
     auto bounds = getLocalBounds();
     
     // allocate space for the slider
-    //auto sliderArea = bounds.removeFromBottom(50);
-    //rangeSlider.setBounds(sliderArea.reduced(10));
+    auto sliderArea = bounds.removeFromBottom(50);
+    rangeSlider.setBounds(sliderArea.reduced(10));
 
     auto buttonArea = bounds.removeFromTop(40).reduced(10);
     loadButton.setBounds(buttonArea);
