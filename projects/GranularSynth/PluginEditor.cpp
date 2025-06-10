@@ -13,14 +13,23 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
     addAndMakeVisible(rangeSlider);
     rangeSlider.juce::Slider::setSliderStyle(juce::Slider::SliderStyle::TwoValueHorizontal);
     rangeSlider.setRange(30, 1000); // desired range
-    rangeSlider.setMinAndMaxValues(30, 130); // initial min/max values
+    rangeSlider.setMinAndMaxValues(30, 200); // initial min/max values
     
     rangeSlider.onValueChange = [this] {
         // handle value changes here
-        auto min = rangeSlider.getMinValue();
-        auto max = rangeSlider.getMaxValue();
-        // update parameters as needed
-    };
+        auto minValue = rangeSlider.getMinValue();
+        auto maxValue = rangeSlider.getMaxValue();
+
+        // Retrieve the parameters from the APVTS and set their values
+
+        auto& apvts = audioProcessor.getParamManager().getAPVTS();
+        
+        if (auto* minGrainLenParam = apvts.getParameter(Param::ID::minGrainLen))
+            minGrainLenParam->setValueNotifyingHost(minValue);
+
+        if (auto* maxGrainLenParam = apvts.getParameter(Param::ID::maxGrainLen))
+            maxGrainLenParam->setValueNotifyingHost(maxValue);
+};
 
     addAndMakeVisible(loadButton);
     loadButton.addListener(this);

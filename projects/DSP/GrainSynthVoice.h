@@ -27,6 +27,7 @@ public:
     void setGrainAttack(float attack) { grainAttack = attack; }
     void setGrainSustain(float sustain) { grainSustain = sustain; }
     void setGrainRelease(float release) { grainRelease = release; }
+    void setMinSize(float newMinSize);
     void setMaxSize(float newMaxSize);
     void setDensity(float newDensity);
     void setFilePos(float value);
@@ -56,7 +57,8 @@ private:
     bool noteHeld = false;
     // GRAIN SIZE 
     float density = 10.0f;
-    float grainSize = 480.0f;
+    float maxGrainSize = 200.0f; // in ms
+    float minGrainSize = 50.0f; // in ms
     int filePositionInSamples = 0.0f;
 
     double timeUntilNextGrain = 0.0;

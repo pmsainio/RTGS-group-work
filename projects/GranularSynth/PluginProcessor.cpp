@@ -11,9 +11,11 @@ static const std::vector<mrta::ParameterInfo> paramVector
     { Param::ID::filePos, Param::Name::filePos, "Samples", 0.f, 0.f, 1.f, 0.001f, 1.f },
     { Param::ID::grainLen, Param::Name::grainLen, "ms", 30.f, 30.f, 200.f, 1.f, 1.f },
     { Param::ID::density, Param::Name::density, "Samples", 5.f, 5.f, 20.f, 1.f, 1.f },
-    { Param::ID::attack, Param::Name::attack, "ms", 5.f, 5.f, 100.f, 1.f, 1.0f },
-    { Param::ID::release, Param::Name::release, "ms", 5.f, 5.f, 100.f, 1.f, 1.0f },
-    { Param::ID::sustain, Param::Name::sustain, "", 0.1f, 0.1f, 1.f, 0.1f, 1.0f }
+    { Param::ID::attack, Param::Name::attack, "ms", 10.f, 10.f, 25.f, 1.f, 1.0f },
+    { Param::ID::release, Param::Name::release, "ms", 10.f, 10.f, 25.f, 1.f, 1.0f },
+    { Param::ID::sustain, Param::Name::sustain, "", 0.1f, 0.1f, 1.f, 0.1f, 1.0f },
+    { Param::ID::minGrainLen, Param::Name::minGrainLen, "ms", 50.f, 50.f, 200.f, 1.f, 1.f },
+    { Param::ID::maxGrainLen, Param::Name::maxGrainLen, "ms", 200.f, 200.f, 200.f, 1.f, 1.f }
 };
 
 GrainAudioProcessor::GrainAudioProcessor()
@@ -49,10 +51,14 @@ GrainAudioProcessor::GrainAudioProcessor()
             voice->setFilePos(value);
         });
 
-    paramManager.registerParameterCallback(Param::ID::grainLen,
+    paramManager.registerParameterCallback(Param::ID::minGrainLen,
+        [this](float value, bool /*force*/) {
+            voice->setMinSize(value);
+        });
+    
+    paramManager.registerParameterCallback(Param::ID::maxGrainLen,
         [this](float value, bool /*force*/) {
             voice->setMaxSize(value);
-               
         });
 
     paramManager.registerParameterCallback(Param::ID::density,

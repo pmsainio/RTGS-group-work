@@ -16,6 +16,8 @@ namespace Param
         static const juce::String filePos {"File Position"};
         static const juce::String grainLen {"Grain Size"};
         static const juce::String density {"Grain Density"};
+        static const juce::String minGrainLen {"Min Grain Length"};
+        static const juce::String maxGrainLen {"Max Grain Length"};
     }
 
     namespace Name
@@ -26,6 +28,8 @@ namespace Param
         static const juce::String filePos {"Position"};
         static const juce::String grainLen {"Grain Length"};
         static const juce::String density {"Grain Density"};
+        static const juce::String minGrainLen {"Min Grain Length"};
+        static const juce::String maxGrainLen {"Max Grain Length"};
     }
     
 }
