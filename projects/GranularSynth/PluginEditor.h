@@ -28,7 +28,7 @@ private:
     juce::Label grainSizeLabel, filePosLabel, densityLabel;
     juce::Label attackLabel, sustainLabel, releaseLabel;
 
-    juce::Slider rangeSlider;
+    //juce::Slider rangeSlider;
     juce::TextButton loadButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
 

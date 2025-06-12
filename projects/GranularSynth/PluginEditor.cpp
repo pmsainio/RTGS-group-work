@@ -17,20 +17,20 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p)
     addLabeledKnob(sustainSlider, sustainLabel, "Sustain", Param::ID::sustain);
     addLabeledKnob(releaseSlider, releaseLabel, "Release", Param::ID::release);
 
-    addAndMakeVisible(rangeSlider);
-    rangeSlider.setSliderStyle(juce::Slider::TwoValueHorizontal);
-    rangeSlider.setRange(30, 1000);
-    rangeSlider.setMinAndMaxValues(30, 200);
-    rangeSlider.onValueChange = [this]() {
-        auto minValue = rangeSlider.getMinValue();
-        auto maxValue = rangeSlider.getMaxValue();
+    //addAndMakeVisible(rangeSlider); don't need all this in the current version
+    //rangeSlider.setSliderStyle(juce::Slider::TwoValueHorizontal);
+    //rangeSlider.setRange(30, 1000);
+    //rangeSlider.setMinAndMaxValues(30, 200);
+    //rangeSlider.onValueChange = [this]() {
+    //    auto minValue = rangeSlider.getMinValue();
+    //    auto maxValue = rangeSlider.getMaxValue();
 
-        auto& apvts = audioProcessor.getParamManager().getAPVTS();
-        if (auto* minGrainLen = apvts.getParameter(Param::ID::minGrainLen))
-            minGrainLen->setValueNotifyingHost(minValue);
-        if (auto* maxGrainLen = apvts.getParameter(Param::ID::maxGrainLen))
-            maxGrainLen->setValueNotifyingHost(maxValue);
-    };
+    //    auto& apvts = audioProcessor.getParamManager().getAPVTS();
+    //    if (auto* minGrainLen = apvts.getParameter(Param::ID::minGrainLen))
+    //        minGrainLen->setValueNotifyingHost(minValue);
+    //    if (auto* maxGrainLen = apvts.getParameter(Param::ID::maxGrainLen))
+    //        maxGrainLen->setValueNotifyingHost(maxValue);
+    //};
 
     addAndMakeVisible(loadButton);
     loadButton.addListener(this);
@@ -90,7 +90,7 @@ void GrainAudioProcessorEditor::resized()
     auto bounds = getLocalBounds().reduced(10);
     bounds.removeFromTop(getHeight() * 0.2f); // waveform
     loadButton.setBounds(bounds.removeFromTop(40).reduced(5));
-    rangeSlider.setBounds(bounds.removeFromBottom(50).reduced(5));
+    //rangeSlider.setBounds(bounds.removeFromBottom(50).reduced(5));
 
     auto topRow = bounds.removeFromTop(bounds.getHeight() / 2);
     auto bottomRow = bounds;
