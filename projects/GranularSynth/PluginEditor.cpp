@@ -1,43 +1,42 @@
 #include <JuceHeader.h>
 #include "PluginEditor.h"
 
-
-GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p) :
-    juce::AudioProcessorEditor(p), audioProcessor(p),
-    paramEditor(audioProcessor.getParamManager()),
-    loadButton("Load Audio File")
+GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p)
+    : AudioProcessorEditor(p), audioProcessor(p), loadButton("Load Audio File")
 {
+    startTimerHz(30); 
     audioProcessor.addChangeListener(this);
-    addAndMakeVisible(paramEditor);
+
+    auto& apvts = audioProcessor.getParamManager().getAPVTS();
+
+    addLabeledKnob(grainSizeSlider, grainSizeLabel, "Grain Size", Param::ID::grainLen);
+    addLabeledKnob(filePosSlider, filePosLabel, "File Pos", Param::ID::filePos);
+    addLabeledKnob(densitySlider, densityLabel, "Density", Param::ID::density);
+
+    addLabeledKnob(attackSlider, attackLabel, "Attack", Param::ID::attack);
+    addLabeledKnob(sustainSlider, sustainLabel, "Sustain", Param::ID::sustain);
+    addLabeledKnob(releaseSlider, releaseLabel, "Release", Param::ID::release);
 
     addAndMakeVisible(rangeSlider);
-    rangeSlider.juce::Slider::setSliderStyle(juce::Slider::SliderStyle::TwoValueHorizontal);
-    rangeSlider.setRange(30, 1000); // desired range
-    rangeSlider.setMinAndMaxValues(30, 200); // initial min/max values
-    
-    rangeSlider.onValueChange = [this] {
-        // handle value changes here
+    rangeSlider.setSliderStyle(juce::Slider::TwoValueHorizontal);
+    rangeSlider.setRange(30, 1000);
+    rangeSlider.setMinAndMaxValues(30, 200);
+    rangeSlider.onValueChange = [this]() {
         auto minValue = rangeSlider.getMinValue();
         auto maxValue = rangeSlider.getMaxValue();
 
-        // Retrieve the parameters from the APVTS and set their values
-
         auto& apvts = audioProcessor.getParamManager().getAPVTS();
-        
-        if (auto* minGrainLenParam = apvts.getParameter(Param::ID::minGrainLen))
-            minGrainLenParam->setValueNotifyingHost(minValue);
-
-        if (auto* maxGrainLenParam = apvts.getParameter(Param::ID::maxGrainLen))
-            maxGrainLenParam->setValueNotifyingHost(maxValue);
-};
+        if (auto* minGrainLen = apvts.getParameter(Param::ID::minGrainLen))
+            minGrainLen->setValueNotifyingHost(minValue);
+        if (auto* maxGrainLen = apvts.getParameter(Param::ID::maxGrainLen))
+            maxGrainLen->setValueNotifyingHost(maxValue);
+    };
 
     addAndMakeVisible(loadButton);
     loadButton.addListener(this);
-    loadButton.setColour(juce::TextButton::buttonColourId, juce::Colours::whitesmoke);
-    loadButton.setColour(juce::TextButton::textColourOffId, juce::Colours::fuchsia);
 
     getLookAndFeel().setColour(juce::ResizableWindow::backgroundColourId, juce::Colours::black);
-    setSize(7 * 100, 7 * 100);
+    setSize(700, 700);
 }
 
 GrainAudioProcessorEditor::~GrainAudioProcessorEditor()
@@ -45,84 +44,122 @@ GrainAudioProcessorEditor::~GrainAudioProcessorEditor()
     audioProcessor.removeChangeListener(this);
 }
 
-//==============================================================================
+void GrainAudioProcessorEditor::addLabeledKnob(std::unique_ptr<mrta::ParameterSlider>& slider, juce::Label& label, const juce::String& text, const juce::String& paramID)
+{
+    auto& apvts = audioProcessor.getParamManager().getAPVTS();
+    slider = std::make_unique<mrta::ParameterSlider>(paramID, apvts);
+    label.setText(text, juce::dontSendNotification);
+    label.setJustificationType(juce::Justification::centred);
+    label.setColour(juce::Label::textColourId, juce::Colours::white);
+    addAndMakeVisible(label);
+    addAndMakeVisible(slider.get());
+}
+
 void GrainAudioProcessorEditor::paint(juce::Graphics& g)
 {
-     g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    g.fillAll(juce::Colours::black);
 
-     if (fileLoaded)
-     {
-        auto waveformArea = getLocalBounds().removeFromTop(getHeight() * 0.2f).reduced(10);
+    auto waveformHeight = getHeight() * 0.2f;
+    auto waveformArea = getLocalBounds().removeFromTop((int)waveformHeight).reduced(10);
+
+    if (fileLoaded)
+    {
         g.setColour(juce::Colours::fuchsia.withAlpha(0.8f));
         g.strokePath(waveformPath, juce::PathStrokeType(2.0f));
-        
-        // Draw border
         g.setColour(juce::Colours::white.withAlpha(0.3f));
         g.drawRect(waveformArea, 1);
-     }
+
+        // File Pos Line
+        float filePos = 0.f;
+        if (auto* p = audioProcessor.getParamManager().getAPVTS().getRawParameterValue(Param::ID::filePos))
+            filePos = p->load(); // in range [0, 1]
+
+        int x = waveformArea.getX() + static_cast<int>(filePos * waveformArea.getWidth());
+        g.setColour(juce::Colours::white);
+        g.drawLine((float)x, (float)waveformArea.getY(), (float)x, (float)waveformArea.getBottom(), 1.5f);
+    }
+
+    // Divider
+    float midY = getHeight() * 0.55f;
+    g.setColour(juce::Colours::grey);
+    g.drawLine(10.0f, midY, getWidth() - 10.0f, midY, 1.0f);
 }
 
 void GrainAudioProcessorEditor::resized()
 {
-    auto bounds = getLocalBounds();
-    
-    // allocate space for the slider
-    auto sliderArea = bounds.removeFromBottom(50);
-    rangeSlider.setBounds(sliderArea.reduced(10));
+    auto bounds = getLocalBounds().reduced(10);
+    bounds.removeFromTop(getHeight() * 0.2f); // waveform
+    loadButton.setBounds(bounds.removeFromTop(40).reduced(5));
+    rangeSlider.setBounds(bounds.removeFromBottom(50).reduced(5));
 
-    auto buttonArea = bounds.removeFromTop(40).reduced(10);
-    loadButton.setBounds(buttonArea);
+    auto topRow = bounds.removeFromTop(bounds.getHeight() / 2);
+    auto bottomRow = bounds;
 
-    auto waveformArea = bounds.removeFromTop(getHeight() * 0.1f).reduced(10);
-    
-    // give the remaining space to the parameter editor
-    paramEditor.setBounds(bounds);
+    auto colW = getWidth() / 3;
+    auto knobH = 80;
 
-    if (fileLoaded)
+    auto layout = [](juce::Rectangle<int> row, juce::Label& label1, juce::Component& knob1,
+                                         juce::Label& label2, juce::Component& knob2,
+                                         juce::Label& label3, juce::Component& knob3)
     {
-        generateWaveform();
-    }
+        auto col1 = row.removeFromLeft(row.getWidth() / 3);
+        auto col2 = row.removeFromLeft(row.getWidth() / 2);
+        auto col3 = row;
+
+        auto layoutKnob = [](juce::Rectangle<int> col, juce::Label& label, juce::Component& knob)
+        {
+            auto labelHeight = 20;
+            label.setBounds(col.removeFromTop(labelHeight));
+            knob.setBounds(col.reduced(10));
+        };
+
+        layoutKnob(col1, label1, knob1);
+        layoutKnob(col2, label2, knob2);
+        layoutKnob(col3, label3, knob3);
+    };
+
+    layout(topRow, grainSizeLabel, *grainSizeSlider,
+                   filePosLabel,   *filePosSlider,
+                   densityLabel,   *densitySlider);
+
+    layout(bottomRow, attackLabel,  *attackSlider,
+                      sustainLabel, *sustainSlider,
+                      releaseLabel, *releaseSlider);
+}
+
+void GrainAudioProcessorEditor::timerCallback()
+{
+    repaint(); 
 }
 
 void GrainAudioProcessorEditor::buttonClicked(juce::Button* button)
 {
     if (button == &loadButton)
     {
-        // Create file chooser
         fileChooser = std::make_unique<juce::FileChooser>(
-            "Select an audio file to load...",
-            juce::File{},  // Start from default directory
-            "*.wav;*.aiff;*.flac;*.mp3;*.ogg",  // Supported file formats
-            true);  // Allow multiple files to be selected
-        
-        // Launch the file chooser
-        fileChooser->launchAsync(juce::FileBrowserComponent::openMode | 
-                                juce::FileBrowserComponent::canSelectFiles,
-            [this](const juce::FileChooser& chooser)
-            {
-                auto result = chooser.getURLResult();
-                
-                if (result.isEmpty())
-                    return;
-                
-                juce::String path;
-                if (result.isLocalFile())
-                {
-                    path = result.getLocalFile().getFullPathName();
-                }
-                else
-                {
-                    DBG("Remote files not supported yet");
-                    return;
-                }
-                
-                audioProcessor.readFile(path);
-                
-                loadButton.setButtonText(result.getFileName());
-                fileLoaded = audioProcessor.getAudioBuffer() != nullptr;
-                generateWaveform();
-                repaint();
-            });
+            "Select an audio file...",
+            juce::File{},
+            "*.wav;*.aiff;*.flac;*.mp3;*.ogg",
+            true);
+
+        fileChooser->launchAsync(juce::FileBrowserComponent::openMode |
+                                 juce::FileBrowserComponent::canSelectFiles,
+                                 [this](const juce::FileChooser& chooser)
+                                 {
+                                     auto result = chooser.getURLResult();
+                                     if (result.isEmpty()) return;
+
+                                     juce::String path;
+                                     if (result.isLocalFile())
+                                         path = result.getLocalFile().getFullPathName();
+                                     else return;
+
+                                     audioProcessor.readFile(path);
+                                     loadButton.setButtonText(result.getFileName());
+                                     fileLoaded = audioProcessor.getAudioBuffer() != nullptr;
+                                     generateWaveform();
+                                     repaint();
+                                 });
     }
 }
 
@@ -139,33 +176,24 @@ void GrainAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadcaster* 
 void GrainAudioProcessorEditor::generateWaveform()
 {
     waveformPath.clear();
-    
     const auto* buffer = audioProcessor.getAudioBuffer();
-    if (buffer == nullptr || buffer->getNumSamples() == 0)
+    if (!buffer || buffer->getNumSamples() == 0)
         return;
-    
+
     const float* channelData = buffer->getReadPointer(0);
-    const int numSamples = buffer->getNumSamples();
-    const int width = getWidth();
-    
-    // Get the waveform display area bounds
+    int numSamples = buffer->getNumSamples();
     auto waveformArea = getLocalBounds().removeFromTop(getHeight() * 0.2f).reduced(10);
-    const int displayWidth = waveformArea.getWidth();
-    
-    // To avoid drawing too many points, we'll skip samples when zoomed out
-    const int step = juce::jmax(1, numSamples / displayWidth);
-    
+    int displayWidth = waveformArea.getWidth();
+
+    int step = juce::jmax(1, numSamples / displayWidth);
     waveformPath.startNewSubPath(waveformArea.getX(), waveformArea.getCentreY());
-    
+
     for (int x = 0; x < displayWidth; ++x)
     {
-        const int sampleIndex = (int)((x / (float)displayWidth) * numSamples);
-        const float sample = channelData[sampleIndex];
-        
-        const float y = juce::jmap(sample, -1.0f, 1.0f, 
-                                 (float)waveformArea.getBottom(), 
-                                 (float)waveformArea.getY());
-        
+        int sampleIndex = (int)((x / (float)displayWidth) * numSamples);
+        float sample = channelData[sampleIndex];
+        float y = juce::jmap(sample, -1.0f, 1.0f, (float)waveformArea.getBottom(), (float)waveformArea.getY());
+
         if (x == 0)
             waveformPath.startNewSubPath(waveformArea.getX() + (float)x, y);
         else
