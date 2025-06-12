@@ -15,7 +15,7 @@ static const std::vector<mrta::ParameterInfo> paramVector
     { Param::ID::release, Param::Name::release, "ms", 10.f, 10.f, 25.f, 1.f, 1.0f },
     { Param::ID::sustain, Param::Name::sustain, "", 0.1f, 0.1f, 1.f, 0.1f, 1.0f },
     { Param::ID::minGrainLen, Param::Name::minGrainLen, "ms", 50.f, 50.f, 200.f, 1.f, 1.f },
-    { Param::ID::maxGrainLen, Param::Name::maxGrainLen, "ms", 200.f, 200.f, 250.f, 1.f, 1.f }
+    { Param::ID::maxGrainLen, Param::Name::maxGrainLen, "ms", 30.f, 30.f, 100.f, 1.f, 1.f }
 };
 
 GrainAudioProcessor::GrainAudioProcessor()

@@ -10,7 +10,7 @@ GrainAudioProcessorEditor::GrainAudioProcessorEditor(GrainAudioProcessor& p)
     auto& apvts = audioProcessor.getParamManager().getAPVTS();
 
     //addLabeledKnob(grainSizeSlider, grainSizeLabel, "Grain Size", Param::ID::grainLen);
-    addLabeledKnob(grainMaxSizeSlider, grainMaxSizeLabel, "Grain Max Size", Param::ID::maxGrainLen);
+    addLabeledKnob(grainMaxSizeSlider, grainMaxSizeLabel, "Sustain Max Size", Param::ID::maxGrainLen);
     addLabeledKnob(filePosSlider, filePosLabel, "File Pos", Param::ID::filePos);
     addLabeledKnob(densitySlider, densityLabel, "Density", Param::ID::density);
 
