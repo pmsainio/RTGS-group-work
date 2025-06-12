@@ -22,10 +22,10 @@ public:
 private:
     GrainAudioProcessor& audioProcessor;
 
-    std::unique_ptr<mrta::ParameterSlider> grainSizeSlider, filePosSlider, densitySlider;
+    std::unique_ptr<mrta::ParameterSlider> grainMaxSizeSlider, filePosSlider, densitySlider;
     std::unique_ptr<mrta::ParameterSlider> attackSlider, sustainSlider, releaseSlider;
 
-    juce::Label grainSizeLabel, filePosLabel, densityLabel;
+    juce::Label grainMaxSizeLabel, filePosLabel, densityLabel;
     juce::Label attackLabel, sustainLabel, releaseLabel;
 
     //juce::Slider rangeSlider;
